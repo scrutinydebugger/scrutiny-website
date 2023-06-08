@@ -1,0 +1,9 @@
+node_modules
+dist
+Thumbs.db
+.DS_Store
+.dist
+.tmp
+.sass-cache
+npm-debug.log
+package-lock.json

@@ -1,0 +1,52 @@
+@@include('global-header.html')
+
+@@include('navigation.html', {"documentation": "active", 'api-ref' : 'active'})
+
+@@include('page-title.html',{
+	"title" : "Server API",
+    "description" : "Page under writing"
+})
+
+<section class="section doc-api-ref p-0">
+	<div class="container">
+
+    <div class="row">
+			<div class="col-lg-12 m-auto">
+				<div class="block shadow">
+
+        <div class="api-section">
+            <div class="message-name">
+                <h2>
+                    Client to Server
+                </h2>
+            </div>
+
+            <div id="gstAccordion" data-children=".item">
+
+              <div class="item">
+                  <div class="item-link">
+                    <a data-toggle="collapse" data-parent="#gstAccordion" href="#msg_c2s_get_server_status">
+                      get_server_status
+                    </a>
+                  </div>
+                <div id="msg_c2s_get_server_status" class="collapse show accordion-block">
+                  <p>
+                    Request the server to send it's status.
+                  </p>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+
+    </div>
+</section>
+
+
+@@include('footer.html')
+
+@@include('global-footer.html')

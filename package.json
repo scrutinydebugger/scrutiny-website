@@ -1,0 +1,23 @@
+{
+  "name": "scrutiny-website",
+  "version": "1.0.0",
+  "description": "Website for scrutinydebugger.com",
+  "scripts": {
+    "build" : "gulp build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/scrutinydebugger/scrutiny-website.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync": "^2.29.3",
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-file-include": "^2.3.0",
+    "gulp-rimraf": "^1.0.0",
+    "gulp-sass": "^5.1.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "sass": "^1.63.2"
+  }
+}
