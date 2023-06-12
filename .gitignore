@@ -7,3 +7,4 @@ Thumbs.db
 .sass-cache
 npm-debug.log
 package-lock.json
+deploy.sh
