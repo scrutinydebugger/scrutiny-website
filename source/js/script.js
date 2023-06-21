@@ -1,6 +1,15 @@
 ;(function ($) {
     "use strict"
 
+    const copyright_startdate=2023; 
+    const thedate=new Date().getFullYear();
+    let copyright_string = copyright_startdate;
+    if (thedate !== copyright_startdate) {
+        copyright_string += "-" + thedate
+    }
+
+    $("#copyright-date").text(copyright_string)
+
     $(window).on("scroll", function () {
         var scrollToTop = $(".scroll-top-to"),
             scroll = $(window).scrollTop()
