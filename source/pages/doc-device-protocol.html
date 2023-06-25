@@ -14,19 +14,772 @@
 			<div class="col-lg-12 align-self-center">
 				<div class="article-container text-lg-left">
                     <article class="article">
-                        <h3 class="article-title">
-                            Not ready yet, be patient
-                        </h3>
+                        <h2 class="article-title">
+                            Protocol basics
+                        </h2>
                         <div class="article-body">
                             <p>
-                                Scrutiny is still under development. The docuemntation is not fully written, but it will come.
+                                This article details the inner workings of the communication protocol used between the Scrutiny server and a Scrutiny device.
+                                A user will never have to know anything about this protocol. The main purpose of this page is to provide some developper documentation
+                                to anybody who wants to modify the software or debug their communication.
                             </p>
-                    
+
                             <p>
-                                If you really want to get Scrutiny working before the installer is published, you can fetch the code from Gihub and contact us by email.
+                                The communication between the server and the device is done through a custom binary protocol.
+                                The protocol is half-duplex and works in a request/response scheme. It is partially insipired by the 
+                                <abbr title="Unified Diagnostic Service">UDS</abbr> protocol used in the automotive industry defined by ISO-14229.
+                            </p>
+
+                            <p>
+                                All fields are encoded in big-endian format and a timeout on the reception of data resets the internal state machine to wait 
+                                for a new command ID. Requests that have an invalid CRC32 are silently ignored.
+                            </p>
+
+                            <p>
+                                Before sending a request to a device, the server needs to establish a session with it with a "Connect" request. When no connection 
+                                is established, the device will only answer to these 2 request <a class="scrollTo" href="#proto-CommControl-Discover">CommControl-Discover</a> 
+                                and to <a class="scrollTo" href="#proto-CommControl-Connect">CommControl-Connect</a>. All other request will be silently ignored.
+                            </p>
+
+                            <p>
+                                Once a session is established, periodic <a class="scrollTo" href="#proto-CommControl-Heartbeat">CommControl-Heartbeat</a> Requests must 
+                                be sent to keep the session active. The server uses the heartbeat mechanism to detect if a device is disconnected and 
+                                the device uses them to detect that a server is gone.
+                            </p>
+
+
+                            <p><h3>Request</h3></p>
+                            <p>
+                                <img src="images/diagrams/request.png" class="img-fluid">
+                            </p>
+                            <ul>
+                                <li><strong>Direction</strong>: Request or Response. 0 for request</li>
+                                <li><strong>Command ID</strong>: A 7 bit ID indicating the action that we want to perform</li>
+                                <li><strong>Subfunction</strong>: A subcommand ID that specify the command</li>
+                                <li><strong>Data Length</strong>: Number of bytes in the data field. Maximum value : 65520 bytes </li>
+                                <li><strong>CRC32</strong>: A <abbr title="Cyclic Redundency Check">CRC</abbr> code that validates the frame integrity</li>
+                            </ul>
+
+                            <p><h3>Response</h3></p>
+                            <p>
+                                <img src="images/diagrams/response.png" class="img-fluid">
+                            </p>
+                            <ul>
+                                <li><strong>Direction</strong>: Request or Response. 1 for response</li>
+                                <li><strong>Command ID</strong>: An echo of the request Command ID</li>
+                                <li><strong>Subfunction</strong>: An echo of the request Subfunction</li>
+                                <li>
+                                    <strong>Code</strong>: A response code indicating the success or the reason of a failure
+                                    <ul>
+                                        <li><strong>OK (0)</strong>: Request completed successfully</li>
+                                        <li><strong>InvalidRequest (1)</strong>: Request was not properly crafted</li>
+                                        <li><strong>UnsupportedFeature (2)</strong>: Request ask for a feature that the device does not know of</li>
+                                        <li><strong>Overflow (3)</strong>: The response does not fit in the transmit buffer</li>
+                                        <li><strong>Busy (4)</strong>: Cannot process this request in the current state</li>
+                                        <li><strong>FailureToProceed (5)</strong>: Default failure message if anything prevents the device from completing the request</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Data Length</strong>: Number of bytes in the data field. Maximum value : 65520 bytes </li>
+                                <li><strong>CRC32</strong>: A <abbr title="Cyclic Redundency Check">CRC</abbr> code that validates the frame integrity</li>
+                            </ul>
+                        </div>
+                    </article>
+                    
+                    <p class="article-separator"></p>
+                    <p>
+                        <h2>GetInfo  [0x01]</h2>
+                    </p>
+
+                    <article class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetProtocolVersion">
+                            GetProtocolVersion  [0x1]
+                        </h3>
+                        <div id="proto-GetInfo-GetProtocolVersion" class="article-body collapse subfn-content">
+                            <p>
+                                Request the device for its protocol version.
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;major&gt;</td>
+                                            <td>1</td>
+                                            <td>Protocol major number</td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>&lt;minor&gt;</td>
+                                            <td>1</td>
+                                            <td>Protocol minor number</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">01010000983ad24e</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">81010002<span class="data">0100</span>43d1aa41</span class="payload">
+                                        <ul>
+                                            <li>major : 1</li>
+                                            <li>minor : 0</li>
+                                        </ul>
+                                    </li>
+                                </ul>
                             </p>
                         </div>
                     </article>
+                   
+                    <article class=" article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetSoftwareId">
+                            GetSoftwareId  [0x2]
+                        </h3>
+                        <div id="proto-GetInfo-GetSoftwareId" class="article-body collapse subfn-content">
+                            <p>
+                                Request the device for its firmware ID
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;software-id&gt;</td>
+                                            <td>16</td>
+                                            <td>Software ID (hash)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">010200009a7c6c17</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">81020010<span class="data"></span>deadbeefdeadbeefdeadbeefdeadbeef</span>966c969d</span class="payload">
+                                        <ul>
+                                            <li>Software ID : deadbeefdeadbeefdeadbeefdeadbeef</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+                   
+                    <article class=" article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetSupportedFeatures">
+                            GetSupportedFeatures  [0x3]
+                        </h3>
+                        <div id="proto-GetInfo-GetSupportedFeatures" class="article-body collapse subfn-content">
+                            <p>
+                                Request the device for the list of supported features. Some features can be disabled to reduces the embedded library footprint
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;feature_byte_1&gt;</td>
+                                            <td>1</td>
+                                            <td>Feature bitfields. Enabled when a bit value is 1
+                                                <ul>
+                                                    <li>0x80 : Memory read</li>
+                                                    <li>0x40 : Memory Write</li>
+                                                    <li>0x20 : Datalogging</li>
+                                                    <li>0x10 : User command</li>
+                                                    <li>0x08 : 64 bits support</li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">010300009bbe0620</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8103000001<span class="data">A8</span>e2980695<span class="data"></span></span class="payload">
+                                        <ul>
+                                            <li>Memory read : Enabled</li>
+                                            <li>Memory Write : Disabled</li>
+                                            <li>Datalogging : Enabled</li>
+                                            <li>User command : Disabled</li>
+                                            <li>64 bits support : Enabled</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>   
+                    
+                    <article class=" article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetSpecialMemoryRegionCount">
+                            GetSpecialMemoryRegionCount  [0x4]
+                        </h3>
+                        <div id="proto-GetInfo-GetSpecialMemoryRegionCount" class="article-body collapse subfn-content">
+                            <p>
+                                Request the device with the number of readonly and forbidden memory region
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;nbr_readonly&gt;</td>
+                                            <td>1</td>
+                                            <td>Number of read-only regions</td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>&lt;nbr_forbidden&gt;</td>
+                                            <td>1</td>
+                                            <td>Number of forbidden regions</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">010400009ef110a5</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8104000002<span class="data">0304</span>07583f9a<span class="data"></span></span class="payload">
+                                        <ul>
+                                            <li>Readonly regions : 3</li>
+                                            <li>Forbidden regions : 4</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>    
+                    
+                    <article class=" article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetSpecialMemoryRegionLocation">
+                            GetSpecialMemoryRegionLocation  [0x5]
+                        </h3>
+                        <div id="proto-GetInfo-GetSpecialMemoryRegionLocation" class="article-body collapse subfn-content">
+                            <p>
+                                Request the device with the number of readonly and forbidden memory region
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;region_type&gt;</td>
+                                            <td>1</td>
+                                            <td>Type of the memory region. ReadOnly(0) or Forbidden(1) </td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>&lt;region_index&gt;</td>
+                                            <td>1</td>
+                                            <td>Index of the region. Value should be between 0 and &lt;nbr_&lt;type&gt;&gt;-1</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;region_type&gt;</td>
+                                            <td>1</td>
+                                            <td>Type of the memory region. ReadOnly(0) or Forbidden(1) </td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>&lt;region_index&gt;</td>
+                                            <td>1</td>
+                                            <td>Index of the region. Value should be between 0 and &lt;nbr_&lt;type&gt;&gt;-1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;start&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of the region</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2+&lt;addr_size&gt;</td>
+                                            <td>&lt;end&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>End address of the region (included)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">01050002<span class="data">0102</span>46ef7975</span class="payload">
+                                        <ul>
+                                            <li>Region Type : Forbidden(1)</li>
+                                            <li>Region index : 2</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">810500000A<span class="data">0102800000008fffffff</span>61285840<span class="data"></span></span class="payload">
+                                        <ul>
+                                            <li>Region Type : Forbidden(1)</li>
+                                            <li>Region index : 2</li>
+                                            <li>Start address : 0x80000000</li>
+                                            <li>End address : 0x8FFFFFFF</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>  
+
+                    <article class=" article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetRuntimePublishedValuesCount">
+                            GetRuntimePublishedValuesCount  [0x6]
+                        </h3>
+                        <div id="proto-GetInfo-GetRuntimePublishedValuesCount" class="article-body collapse subfn-content">
+                            <p>
+                                Request the device with the number of Runtime Published Values (RPV)
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;rpv_count&gt;</td>
+                                            <td>2</td>
+                                            <td>Number of <abbr title="Runtime Published Value">RPV</abbr> </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">010600009d75c4cb</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8106000002<span class="data">0123</span>ddac4978<span class="data"></span></span class="payload">
+                                        <ul>
+                                            <li>Number of <abbr title="Runtime Published Value">RPV</abbr> : 291</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>  
+
+                    <article class=" article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetRuntimePublishedValuesDefinition">
+                            GetRuntimePublishedValuesDefinition  [0x7]
+                        </h3>
+                        <div id="proto-GetInfo-GetRuntimePublishedValuesDefinition" class="article-body collapse subfn-content">
+                            <p>
+                                Request the device with the definition of multiple Runtime Published Values (RPV). 
+                                A definition include ID and type (size implied by data type)
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;batch_start&gt;</td>
+                                            <td>2</td>
+                                            <td>Start index of the this batch</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;batch_size&gt;</td>
+                                            <td>2</td>
+                                            <td>Number of <abbr title="Runtime Published Value">RPV</abbr> to include in this batch read </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;rpv_id_1&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of the <abbr title="Runtime Published Value">RPV</abbr> #1 in the batch </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;rpv_type_1&gt;</td>
+                                            <td>1</td>
+                                            <td>Data type of <abbr title="Runtime Published Value">RPV</abbr> #1 in the batch </td>
+                                        </tr>
+                                        <tr>
+                                            <td>3</td>
+                                            <td>&lt;rpv_id_2&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of the <abbr title="Runtime Published Value">RPV</abbr> #2 in the batch </td>
+                                        </tr>
+                                        <tr>
+                                            <td>5</td>
+                                            <td>&lt;rpv_type_2&gt;</td>
+                                            <td>1</td>
+                                            <td>Data type of <abbr title="Runtime Published Value">RPV</abbr> #2 in the batch </td>
+                                        </tr>
+                                        <tr>
+                                            <td>3(N-1)</td>
+                                            <td>&lt;rpv_id_N&gt;</td>
+                                            <td>2</td>
+                                            <td>Data type of <abbr title="Runtime Published Value">RPV</abbr> #N in the batch </td>
+                                        </tr>
+                                        <tr>
+                                            <td>3(N-1)+2</td>
+                                            <td>&lt;rpv_type_N&gt;</td>
+                                            <td>1</td>
+                                            <td>Data type of <abbr title="Runtime Published Value">RPV</abbr> #N in the batch </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">01070002 <span class="data">3002</span> 09cb5cef</span class="payload">
+                                        <ul>
+                                            <li>Batch start index : 0x30</li>
+                                            <li>Batch size : 2</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8107000006<span class="data">aabb01ccdd22</span>428b8c8a<span class="data"></span></span class="payload">
+                                        <ul>
+                                            <li><abbr title="Runtime Published Value">RPV ID #1</abbr> : 0xAABB</li>
+                                            <li><abbr title="Runtime Published Value">RPV type #1</abbr> :  int16 (0x01)</li>
+                                            <li><abbr title="Runtime Published Value">RPV ID #2</abbr> : 0xCCDD</li>
+                                            <li><abbr title="Runtime Published Value">RPV type #2</abbr> :  float32 (0x22)</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class=" article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetLoopCount">
+                            GetLoopCount  [0x8]
+                        </h3>
+                        <div id="proto-GetInfo-GetLoopCount" class="article-body collapse subfn-content">
+                            <p>
+                                Request the device with the number of loops (execution unit with its own time domain) being run on the device
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;loop_count&gt;</td>
+                                            <td>1</td>
+                                            <td>Number of loops (task)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">0108000097ebe9c1</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8108000001<span class="data">03</span>d44c4de4<span class="data"></span></span class="payload">
+                                        <ul>
+                                            <li>Number of loops : 3</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class=" article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetLoopDefinition">
+                            GetLoopDefinition  [0x9]
+                        </h3>
+                        <div id="proto-GetInfo-GetLoopDefinition" class="article-body collapse subfn-content">
+                            <p>
+                                Get the parameters of a loop (execution unit with its own time domain)
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;loop_id&gt;</td>
+                                            <td>1</td>
+                                            <td>Index of the loop. Value must be between 0 and &lt;loop_count&gt;-1</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;loop_id&gt;</td>
+                                            <td>1</td>
+                                            <td>Echo of the loop ID in the request</td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>&lt;loop_type&gt;</td>
+                                            <td>1</td>
+                                            <td>Type of loop. FixedFrequency(0) or VariableFrequency(1)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;attribute_byte&gt;</td>
+                                            <td>1</td>
+                                            <td>Bit field of attributes
+                                                <ul>
+                                                    <li>0x80 : Supports datalogging</li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <ul>
+                                                    <li>3 (loop_type=0)</li>
+                                                </ul>
+                                            </td>
+                                            <td>&lt;timestep&gt;</td>
+                                            <td>4</td>
+                                            <td>Timestep of the fixed freq loop, in multiple of 100ns</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <ul>
+                                                    <li>8 (loop_type=0)</li>
+                                                    <li>4 (loop_type=1)</li>
+                                                </ul>
+                                            </td>
+                                            <td>&lt;name_length&gt;</td>
+                                            <td>1</td>
+                                            <td>Length of the loop name</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <ul>
+                                                    <li>9 (loop_type=0)</li>
+                                                    <li>4 (loop_type=1)</li>
+                                                </ul>
+                                            </td>
+                                            <td>&lt;loop_name&gt;</td>
+                                            <td>&lt;name_length&gt;</td>
+                                            <td>Name of the loop, encoded in ASCII</td>
+                                        </tr>
+                                       
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">01090001 <span class="data">02</span>715fc14a</span class="payload">
+                                        <ul>
+                                            <li>Loop ID : 2</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">810800000D<span class="data">020080000003E80548656c6c6F</span>bf8b2083</span class="payload">
+                                        <ul>
+                                            <li>Loop ID: 2</li>
+                                            <li>Loop type:  FixedFrequency (0)</li>
+                                            <li>Attribute:  0x80
+                                                <ul>
+                                                    Support datalogging : Enabled
+                                                </ul>
+                                            </li>
+                                            <li>Timestep:  0x000003E8 &#8594; 1000*100ns=100us (10KHz)</li>
+                                            <li>Name length: 5</li>
+                                            <li>Name: "Hello"</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
                 </div>
             </div>
         </div>
