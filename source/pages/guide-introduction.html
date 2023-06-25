@@ -4,8 +4,7 @@
 @@include('navigation.html', {"guide": "active", 'introduction' : 'active'})
 
 @@include('page-title.html',{
-	"title" : "Introduction to Scrutiny",
-    "description" : ""
+	"title" : "Introduction to Scrutiny"
 	
 })
 
@@ -50,9 +49,9 @@
                             </p>
 
                             <p>
-                                So how do we handle that? Scrutiny does not interfere with the original application because it works through instrumentation. Breakpoints are 
-                                not possibles, and memory access are done synchronously with the embedded application. The developer controls when Scrutiny instrumentation is executed
-                                and chooses its execution priority. Memory regions can be marked as forbidden or read-only to avoid tampering with critical memory section.
+                                So how do we handle that? Scrutiny does not interfere with the original application, because it works through instrumentation. Breakpoints are 
+                                not possible, and memory accesses are done synchronously within the embedded application. The developer controls when Scrutiny instrumentation is executed,
+                                and chooses its execution priority. Memory regions can be marked as forbidden or read-only, to avoid tampering with any critical memory section.
                             </p>
                             <p>
                                 Finally, Scrutiny works through the communication channel already available on your hardware. So if you have Wifi, or wireless 
@@ -235,28 +234,37 @@
                                 <p class="text-center">
                                     <img class="img-fluid" src="images/embedded-graph.png" />
                                 </p>
+                                
+                                <p>
+                                    <dl>
+                                        <dt>my_var</dt>
+                                        <dd>Fictive embedded variable that evolves over time.</dd>
+                                        <dt>Trigger condition</dt>
+                                        <dd>A user defined condition that must evaluate to <strong>true</strong> for the given hold time to fires the trigger event.</dd>
+                                        <dt>Hold time</dt>
+                                        <dd>The amount of time that a trigger condition must evaluate to <strong>true</strong> before firing the trigger event.</dd>
+                                        <dt>Buffer length</dt>
+                                        <dd>Length of the acquisition defined by the datalogging buffer size and the number/type of the logged signals.</dd>
+                                        <dt>Trigger position</dt>
+                                        <dd>
+                                            Position of the trigger event inside the acquisition window specified in percentage where 0% is leftmost, 50% center and 100% rightmost.
+                                            When on left, the user can see what happened after the event, and before the event when on right.
+                                        </dd>
+                                    </dl>
+                                </p>
+                                
+                                <p>Look at it in action!</p>
+                                <p>
+                                <video controls="true" class="img-fluid">
+                                    <source src="videos/embedded-graph.mp4" type="video/mp4">
+                                  Your browser does not support the video tag.
+                                  </video> 
+                                </p>
 
-                                <dl>
-                                    <dt>my_var</dt>
-                                    <dd>Fictive embedded variable that evolves over time.</dd>
-                                    <dt>Trigger condition</dt>
-                                    <dd>A user defined condition that must evaluate to <strong>true</strong> for the given hold time to fires the trigger event.</dd>
-                                    <dt>Hold time</dt>
-                                    <dd>The amount of time that a trigger condition must evaluate to <strong>true</strong> before firing the trigger event.</dd>
-                                    <dt>Buffer length</dt>
-                                    <dd>Length of the acquisition defined by the datalogging buffer size and the number/type of the logged signals.</dd>
-                                    <dt>Trigger position</dt>
-                                    <dd>
-                                        Position of the trigger event inside the acquisition window specified in percentage where 0% is leftmost, 50% center and 100% rightmost.
-                                        When on left, the user can see what happened after the event, and before the event when on right.
-                                    </dd>
-                                </dl>
-
-                                <p>For more information about embedded graphs integration in a firmware, see the <a href="guide-instrumentation.html">
+                                <p>
+                                    For more information about embedded graphs integration in a firmware, see the <a href="guide-instrumentation.html">
                                     Instrumenting a software</a> section</p>
-
-                            </p>
-                        
+                                </p>
                         </div>
                     </article>
                 </div>

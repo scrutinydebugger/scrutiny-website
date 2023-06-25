@@ -4,8 +4,7 @@
 @@include('navigation.html', {"guide": "active", 'instrumentation' : 'active'})
 
 @@include('page-title.html',{
-	"title" : "Instrumenting a software",
-    "description" : ""
+	"title" : "Instrumenting a software"
 	
 })
 
@@ -371,14 +370,14 @@ void process_scrutiny_loop(){
     // Receive data
     int16_t c = Serial.read();  // Arduino returns -1 when no data is available
     if (c != -1){
-        uint8_t uc = static_cast<uint8_t>(c);
+        uint8_t uc = static_cast&lt;uint8_t&gt;(c);
         main_handler.comm()->receive_data(&uc, 1);  
     }
     
     // Sends data
     uint8_t buffer[16];
     uint16_t nread = main_handler.comm()->pop_data(buffer, sizeof(buffer));  // Reads data from scrutiny lib
-    if (nread > 0){
+    if (nread &gt; 0){
         Serial.write(buffer, nread);    // Sends data to the serial port
     }
 

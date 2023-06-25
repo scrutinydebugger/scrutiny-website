@@ -4,8 +4,7 @@
 @@include('navigation.html', {"questions-answers": "active"})
 
 @@include('page-title.html',{
-	"title" : "Question & answers",
-    "description" : ""
+	"title" : "Questions & answers"
 	
 })
 
@@ -14,11 +13,10 @@
         <div class="row">
 			<div class="col-lg-12 align-self-center">
 				<div class="article-container text-lg-left">
+
                     <article class="article">
-                        <h3 class="article-title" >
-                            <span class="qa-title" data-toggle="collapse" href="#qa-debugger-or-caltool">
-                                Debugger or calibration tool?
-                            </span>
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-debugger-or-caltool">
+                            Debugger or calibration tool?
                         </h3>
                         <div id="qa-debugger-or-caltool" class="article-body collapse qa-answer">
                             <p>
@@ -57,10 +55,8 @@
                     </article>
 
                     <article class="article">
-                        <h3 class="article-title" >
-                            <span class="qa-title" data-toggle="collapse" href="#qa-local-var">
-                                I only see static and global variables. What about locals?
-                            </span>
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-local-var">
+                            I only see static and global variables. What about locals?
                         </h3>
                         <div id="qa-local-var" class="article-body collapse qa-answer">
                             <p>
@@ -118,7 +114,7 @@ int my_func(int x) {
                             Another consideration is that the rate and the order at which these 2 variables are read is not guaranteed.
                             It strongly depends on your communication link and the number of variables that are being watched at the same time. 
                             To get a synchronized reading of the 2 variables, use the datalogging feature and make an embedded graph of them. 
-                            Then  you will see, for each loop execution, the value of <code class="language-c++">my_var</code> and <code class="language-c++">debug_var</code>.
+                            Then  you will see, for each execution loop, the value of <code class="language-c++">my_var</code> and <code class="language-c++">debug_var</code>.
                         </p>
                         <p>
                             One last thing. When making your variables static, be careful to avoid reentrant function; static variables
@@ -129,10 +125,8 @@ int my_func(int x) {
                     </article>
                     
                     <article class="article">
-                        <h3 class="article-title" >
-                            <span class="qa-title" data-toggle="collapse" href="#qa-debug">
-                                I'm having an issue with Scrutiny, how can I debug?
-                            </span>
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-debug">
+                            I'm having an issue with Scrutiny, how can I pinpoint the problem?
                         </h3>
                         <div id="qa-debug" class="article-body collapse qa-answer">
                             <p>
@@ -141,7 +135,7 @@ int my_func(int x) {
                                 <code class="language-bash">--loglevel</code> that can make it much more verbose.
                             </p>
                             <p>
-                                The following line will launch a server with debug logging.
+                                The following line will launch a server with debug logging. <br />
                                 <code class="language-bash">scrutiny launch-server --config my_config.json --loglevel debug --logfile scrutiny.log</code>
                             </p>
                             <p>
@@ -163,6 +157,73 @@ int my_func(int x) {
                                 <code class="language-bash">python -m scrutiny</code>.  That's because when you install scrutiny,
                                 the unit tests are not installed with the release package. Unit tests are available only in a development environment
                             </p>
+                        </div>
+                    </article>
+                    
+                    <article class="article">
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-custom-protocol">
+                            Why do you use a custom protocol instead of something like XCP?
+                        </h3>
+                        <div id="qa-custom-protocol" class="article-body collapse qa-answer">
+                            <p>
+                                Nobody would really benefit from that.
+                            </p>
+
+                            <p>
+                                Supporting an already existing protocol would only be useful to make a device, previously compatible with a paid tool like Vector Canape, 
+                                compatible with the Scrutiny UI. 
+                                When Scrutiny has been developed, the goal was to bring the CalTool/ instrumentation debugging 
+                                in the sector where it was not common to do so. Industry that requires protocol compatibility are already deeply involved with 
+                                paid tools, they can keep them. Newcomers can decide to go 100% Scrutiny or not.
+                            </p>
+
+                            <p>
+                                Also, supporting compatibility with a standard is time consuming and development time is not the main resource
+                                in a voluntary project. It would simply be an effort put at the wrong place.
+                            </p>
+
+                            <p>
+                                Finally, having tailored protocol, embedded and web API, is very nice for development as all the commands are meaningful and perfectly
+                                adapted to its task. Once the protocol is understood, development is much easier, faster and cleaner.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="article">
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-eeprom" >
+                            Can I use Scrutiny for <abbr title="Non-Volatile Memory">NVM</abbr> configuration?
+                        </h3>
+                        <div id="qa-eeprom" class="article-body collapse qa-answer">
+                            <p>
+                                Yes, but you need to add a hook in your code
+                            </p>
+
+                            <p>
+                                <pre><code class="language-c++">static volatile bool save_eeprom=false;
+static volatile EEPROM_t eeprom_input;
+
+if (save_eeprom){
+    my_eeprom_driver.write_config(&eeprom_input, sizeof(eeprom_input));
+    save_eeprom = false;
+}</code></pre>
+                            </p>
+
+                            <p>
+                                In the example above, the configuration code will never be executed in normal conditions. The <code class="language-c++">eeprom_input</code>
+                                and <code class="language-c++">save_eeprom</code> are now accessible by the client. They can both be written manually or through the SDK. 
+                                
+                            </p>
+
+                            <p>
+                                For convenience, it is even possible to add an alias to abstract this variable so that these items appears at a friendly location, 
+                                for instance /EEPROM/Save &amp; /EEPROM/Content. This feature can be particularly handy if the person doing the configuration is not the same
+                                as the one writing the software (engineering vs production team). It also guarantees that the EEPROM hooks always show at the same location in the 
+                                variable tree, regardless of the software version, avoiding backward compatibility issues in the configuration scripts.
+                            </p>
+                            <p>
+                                Note that the SDK also has the capability of writing memory chunk directly, this can be useful for automation.
+                            </p>
+
                         </div>
                     </article>
 

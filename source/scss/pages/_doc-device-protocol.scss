@@ -1,0 +1,8 @@
+.doc-device-protocol {
+	.article-container {
+		@extend .content-container;
+		.article {
+			@extend .article-content;
+		}
+	}
+}
