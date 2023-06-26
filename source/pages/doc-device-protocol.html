@@ -4,7 +4,7 @@
 @@include('navigation.html', {"documentation": "active", 'device-protocol': 'active'})
 
 @@include('page-title.html',{
-	"title": "Device communication protocol"
+	"title": "Device protocol V1.0"
 	
 })
 
@@ -18,6 +18,7 @@
                         <li><a class="scrollTo" href="#proto-GetInfo" >GetInfo</a></li>
                         <li><a class="scrollTo" href="#proto-CommControl" >CommControl</a></li>
                         <li><a class="scrollTo" href="#proto-MemoryControl" >MemoryControl</a></li>
+                        <li><a class="scrollTo" href="#proto-UserCommand" >UserCommand</a></li>
                     </ul>
                 </nav>
             </div>
@@ -41,8 +42,11 @@
                             </p>
 
                             <p>
-                                All fields are encoded in big-endian format and a timeout on the reception of data resets the internal state machine to wait 
-                                for a new command ID. Requests that have an invalid CRC32 are silently ignored.
+                                All fields are encoded in big-endian format and have a fixed size, except the addresses that depends on the device architecture.
+                                A <a class="scrollTo" href="#article-proto-CommControl-GetParams" onclick="$('#proto-CommControl-GetParams').collapse('show')">CommControl-GetParams</a> 
+                                request is required to know the address size, but also the protocol version used and the rx/tx buffer sizes.
+                                A timeout on the reception of data resets the internal state machine to wait for a new command ID. 
+                                Requests that have an invalid CRC32 are silently ignored.
                             </p>
 
                             <p>
@@ -1213,7 +1217,7 @@
 
                     <p class="article-separator"></p>
                     <p>
-                        <h2 id="proto-CommControl">MemoryControl  [0x03]</h2>
+                        <h2 id="proto-MemoryControl">MemoryControl  [0x03]</h2>
                     </p>
 
                     <article id="article-proto-MemoryControl-Read" class="article subfn-article">
@@ -1339,27 +1343,652 @@
                                     <li>
                                         Request: <span class="payload">0301000C<span class="data">800012340008A41256780004</span>ced846ad  </span class="payload">
                                         <ul>
-                                            <li>Address 1: 0x80001234</li>
-                                            <li>Size 1: 8</li>
-                                            <li>Address 2: 0xA4125678</li>
-                                            <li>Size 2: 4</li>
+                                            <li>Address #0: 0x80001234</li>
+                                            <li>Size #0: 8</li>
+                                            <li>Address #1: 0xA4125678</li>
+                                            <li>Size #1: 4</li>
                                         </ul>
                                     </li>
                                     <li>
                                         Response: <span class="payload">8301000018<span class="data">800012340008DEADBEEFDEADBEEFA4125678000411223344</span>94e68a2c</span class="payload">
                                         <ul>
-                                            <li>Address 1: 0x80001234</li>
-                                            <li>Size 1: 8</li>
-                                            <li>Data 1: 0xDEADBEEFDEADBEEF</li>
-                                            <li>Address 2: 0xA4125678</li>
-                                            <li>Size 2: 4</li>
-                                            <li>Data 2: 0x11223344</li>
+                                            <li>Address #0: 0x80001234</li>
+                                            <li>Size #0: 8</li>
+                                            <li>Data #0: 0xDEADBEEFDEADBEEF</li>
+                                            <li>Address #1: 0xA4125678</li>
+                                            <li>Size #1: 4</li>
+                                            <li>Data #1: 0x11223344</li>
                                         </ul>
                                     </li>
                                 </ul>
                             </p>
                         </div>
                     </article>
+
+                    <article id="article-proto-MemoryControl-Write" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-MemoryControl-Write">
+                            Write  [0x2]
+                        </h3>
+                        <div id="proto-MemoryControl-Write" class="article-body collapse subfn-content">
+                            <p>
+                                Writes the device memory based on an address and a payload. Can write multiple blocks in a single request
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;address_block_0&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>&lt;size_block_0&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt; + 2</td>
+                                            <td>&lt;data_0&gt;</td>
+                                            <td>&lt;size_block_0&gt;</td>
+                                            <td>Data to be written block #0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt; + &lt;size_block_0&gt; + 2</td>
+                                            <td>&lt;address_block_1&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2 * &lt;addr_size&gt; + &lt;size_block_0&gt; + 2</td>
+                                            <td>&lt;size_block_1&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2 * &lt;addr_size&gt; + &lt;size_block_0&gt; + 4</td>
+                                            <td>&lt;data_1&gt;</td>
+                                            <td>&lt;size_block_1&gt;</td>
+                                            <td>Data to be written inside block #1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                        </tr>
+                                       
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;address_block_0&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>&lt;size_block_0&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt; + 2</td>
+                                            <td>&lt;address_block_1&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2 * &lt;addr_size&gt; + 2</td>
+                                            <td>&lt;size_block_1&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>(&lt;addr_size&gt;+2)*N</td>
+                                            <td>&lt;address_block_N&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #N </td>
+                                        </tr>
+                                        <tr>
+                                            <td>(&lt;addr_size&gt;+2)*N+2</td>
+                                            <td>&lt;size_block_N&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #N </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">03020018<span class="data">8000123400081122334455667788A41256780004FFEEDDCC</span>5541dd2e</span class="payload">
+                                        <ul>
+                                            <li>Address #0: 0x80001234</li>
+                                            <li>Size #0: 8</li>
+                                            <li>Data #0: 0x1122334455667788</li>
+                                            <li>Address #1: 0xA4125678</li>
+                                            <li>Size #1: 4</li>
+                                            <li>Data #1: 0xFFEEDDCC</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">830200000C<span class="data">800012340008A41256780004</span>15092650</span class="payload">
+                                        <ul>
+                                            <li>Address #0: 0x80001234</li>
+                                            <li>Size #0: 8</li>
+                                            <li>Address #1: 0xA4125678</li>
+                                            <li>Size #1: 4</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+                    <article id="article-proto-MemoryControl-WriteMasked" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-MemoryControl-WriteMasked">
+                            WriteMasked  [0x3]
+                        </h3>
+                        <div id="proto-MemoryControl-WriteMasked" class="article-body collapse subfn-content">
+                            <p>
+                                Writes the device memory with an address, a payload and a binary mask as long as the payload. Only the bits 
+                                where the mask is set to 1 will be written. Can write multiple blocks in a single request
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;address_block_0&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>&lt;size_block_0&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt; + 2</td>
+                                            <td>&lt;data_0&gt;</td>
+                                            <td>&lt;size_block_0&gt;</td>
+                                            <td>Data to be written block #0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt; + &lt;size_block_0&gt; + 2</td>
+                                            <td>&lt;mask_0&gt;</td>
+                                            <td>&lt;size_block_0&gt;</td>
+                                            <td>Mask applied on &lt;data_0&gt;</td>
+                                        </tr>
+                                        <tr>
+                                            <td> &lt;addr_size&gt; + 2*&lt;size_block_0&gt; + 2 </td>
+                                            <td>&lt;address_block_1&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2*&lt;addr_size&gt; + 2*&lt;size_block_0&gt; + 2</td>
+                                            <td>&lt;size_block_1&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2*&lt;addr_size&gt; + 2*&lt;size_block_0&gt; + 4</td>
+                                            <td>&lt;data_1&gt;</td>
+                                            <td>&lt;size_block_1&gt;</td>
+                                            <td>Data to be written block #1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2*&lt;addr_size&gt; + 2*&lt;size_block_0&gt; + &lt;size_block_1&gt; + 4</td>
+                                            <td>&lt;mask_1&gt;</td>
+                                            <td>&lt;size_block_1&gt;</td>
+                                            <td>Mask applied on &lt;data_1&gt;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                        </tr>
+                                       
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;address_block_0&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>&lt;size_block_0&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt; + 2</td>
+                                            <td>&lt;address_block_1&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2 * &lt;addr_size&gt; + 2</td>
+                                            <td>&lt;size_block_1&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>(&lt;addr_size&gt;+2)*N</td>
+                                            <td>&lt;address_block_N&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #N </td>
+                                        </tr>
+                                        <tr>
+                                            <td>(&lt;addr_size&gt;+2)*N+2</td>
+                                            <td>&lt;size_block_N&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #N </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">03030024<span class="data">8000123400081122334455667788AAAAAAAAAAAAAAAAA41256780004FFEEDDCC55555555</span>3c06f655</span class="payload">
+                                        <ul>
+                                            <li>Address #0: 0x80001234</li>
+                                            <li>Size #0: 8</li>
+                                            <li>Data #0: 0x1122334455667788</li>
+                                            <li>Mask #0: 0xAAAAAAAAAAAAAAAA</li>
+                                            <li>Address #1: 0xA4125678</li>
+                                            <li>Size #1: 4</li>
+                                            <li>Data #1: 0xFFEEDDCC</li>
+                                            <li>Mask #1: 0x55555555</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">830300000C<span class="data">800012340008A41256780004</span>bb61b7c1</span class="payload">
+                                        <ul>
+                                            <li>Address #0: 0x80001234</li>
+                                            <li>Size #0: 8</li>
+                                            <li>Address #1: 0xA4125678</li>
+                                            <li>Size #1: 4</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+                    
+                    <article id="article-proto-MemoryControl-ReadRPV" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-MemoryControl-ReadRPV">
+                            ReadRPV  [0x4]
+                        </h3>
+                        <div id="proto-MemoryControl-ReadRPV" class="article-body collapse subfn-content">
+                            <p>
+                                Reads a Runtime Published Value by providing its 16bits ID only. 
+                                The value type is expected to be known by both sides. The requestor can inquire the device with the list of its RPV 
+                                using the GetInfo commands
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;rpv_id_0&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of RPV #0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;rpv_id_1&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of RPV #1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2N</td>
+                                            <td>&lt;rpv_id_N&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of RPV #N</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;rpv_id_0&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of RPV #0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;rpv_data_0&gt;</td>
+                                            <td>&lt;X0&gt;</td>
+                                            <td>
+                                                Data of RPV #0. Size depends on user definition and can be obtained with a 
+                                                <a class="scrollTo" href="#article-proto-GetInfo-GetRuntimePublishedValuesDefinition" onclick="$('#proto-GetInfo-GetRuntimePublishedValuesDefinition').collapse('show')">
+                                                    GetRuntimePublishedValuesDefinition
+                                                </a> request.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;X0&gt;+2</td>
+                                            <td>&lt;rpv_id_0&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of RPV #0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;X0&gt;+4</td>
+                                            <td>&lt;rpv_data_0&gt;</td>
+                                            <td>&lt;X1&gt;</td>
+                                            <td>
+                                                Data of RPV #1. Size depends on user definition and can be obtained with a 
+                                                <a class="scrollTo" href="#article-proto-GetInfo-GetRuntimePublishedValuesDefinition" onclick="$('#proto-GetInfo-GetRuntimePublishedValuesDefinition').collapse('show')">
+                                                    GetRuntimePublishedValuesDefinition
+                                                </a> request.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">03040006<span class="data">112233445566</span>b31a0536</span class="payload">
+                                        <ul>
+                                            <li>RPV ID #0: 0x1122</li>
+                                            <li>RPV ID #1: 0x3344</li>
+                                            <li>RPV ID #2: 0x5566</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">830400000D<span class="data">1122013344aabb556699887766</span>03a4190f</span class="payload">
+                                        <ul>
+                                            <li>RPV ID #0: 0x1122</li>
+                                            <li>RPV #0 data: 0x01 (assuming 8 bits type)</li>
+                                            <li>RPV ID #1: 0x3344</li>
+                                            <li>RPV #1 data: 0xaabb (assuming 16 bits type)</li>
+                                            <li>RPV ID #2: 0x5566</li>
+                                            <li>RPV #2 data: 0x99887766 (assuming 32 bits type)</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>    
+ 
+                    <article id="article-proto-MemoryControl-WriteRPV" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-MemoryControl-WriteRPV">
+                            WriteRPV  [0x5]
+                        </h3>
+                        <div id="proto-MemoryControl-WriteRPV" class="article-body collapse subfn-content">
+                            <p>
+                                Writes a Runtime Published Value by providing its 16bits ID and the binary payload.
+                                The value type is expected to be known by both sides. The requestor can inquire the device with the list of its RPV 
+                                using the 
+                                <a  class="scrollTo" href="#article-proto-GetInfo-GetRuntimePublishedValuesDefinition" 
+                                    onclick="$('#proto-GetInfo-GetRuntimePublishedValuesDefinition').collapse('show')">
+                                    GetRuntimePublishedValuesDefinition
+                                </a> request
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;rpv_id_0&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of RPV #0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;rpv_data_0&gt;</td>
+                                            <td>&lt;X0&gt;</td>
+                                            <td>
+                                                Data to write. Size &lt;X0&gt; is know be querying the device for the RPV datatype beforehand with a 
+                                                <a  class="scrollTo" href="#article-proto-GetInfo-GetRuntimePublishedValuesDefinition" 
+                                                onclick="$('#proto-GetInfo-GetRuntimePublishedValuesDefinition').collapse('show')">
+                                                GetRuntimePublishedValuesDefinition
+                                                </a> request.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;X0&gt;+2</td>
+                                            <td>&lt;rpv_id_1&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of RPV #1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;X0&gt;+4</td>
+                                            <td>&lt;rpv_data_1&gt;</td>
+                                            <td>&lt;X1&gt;</td>
+                                            <td>
+                                                Data to write. Size &lt;X1&gt; is know be querying the device for the RPV datatype beforehand with a 
+                                                <a  class="scrollTo" href="#article-proto-GetInfo-GetRuntimePublishedValuesDefinition" 
+                                                onclick="$('#proto-GetInfo-GetRuntimePublishedValuesDefinition').collapse('show')">
+                                                GetRuntimePublishedValuesDefinition
+                                                </a> request.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;rpv_id_0&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of RPV #0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;size_written_0&gt;</td>
+                                            <td>1</td>
+                                            <td>Number of bytes written for RPV #0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>3</td>
+                                            <td>&lt;rpv_id_1&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of RPV #1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>5</td>
+                                            <td>&lt;size_written_1&gt;</td>
+                                            <td>1</td>
+                                            <td>Number of bytes written for RPV #1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>3N</td>
+                                            <td>&lt;rpv_id_N&gt;</td>
+                                            <td>2</td>
+                                            <td>Number of bytes written for RPV #N</td>
+                                        </tr>
+                                        <tr>
+                                            <td>3N+2</td>
+                                            <td>&lt;size_written_N&gt;</td>
+                                            <td>1</td>
+                                            <td>Number of bytes written for RPV #N</td>
+                                        </tr>
+                                        
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">0305000A<span class="data">123455ABCDEEFF</span>f437227e</span class="payload">
+                                        <ul>
+                                            <li>RPV ID #0: 0x1234</li>
+                                            <li>RPV #1 data: 0x55 (assuming 8 bits type)</li>
+                                            <li>RPV ID #1: 0xABCD</li>
+                                            <li>RPV #1 data: 0xEEFF (assuming 16 bits type)</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8305000006<span class="data">123401abcd02</span>e709bc11</span class="payload">
+                                        <ul>
+                                            <li>RPV ID #0: 0x1234</li>
+                                            <li>RPV #0 length written: 1 byte</li>
+                                            <li>RPV ID #1: 0xABCD</li>
+                                            <li>RPV #1 length written: 2 bytes</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>    
+
+
+                    <p class="article-separator"></p>
+                    <p>
+                        <h2 id="proto-UserCommand">UserCommand  [0x04]</h2>
+                    </p>
+
+                    <article id="article-proto-UserCommand-Any" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-UserCommand-Any">
+                            Any  [0x??]
+                        </h3>
+                        <div id="proto-UserCommand-Any" class="article-body collapse subfn-content">
+                            <p>
+                                Calls a user defined callback in the device.
+                                A <a class="scrollTo" href="#article-proto-GetInfo-GetSupportedFeatures" onclick="$('#proto-GetInfo-GetSupportedFeatures').collapse('show')">GetSupportedFeatures</a>
+                                request can be used to know if the device supports this command. A device will support this command if the firmware developper defined a callback
+                                by setting <code class="language-c++">config.user_command_callback</code>
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Implementation specific
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                - Implementation specific
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">04AA0005<span class="data">1122334455</span>2e278261</span class="payload">
+                                        <ul>
+                                            <li>Subfunction: 0xAA</li>
+                                            <li>Data: 0x1122334455</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">84AA000003<span class="data">aabbcc</span>023156d9</span class="payload">
+                                        <ul>
+                                            <li>Subfunction: 0xAA</li>
+                                            <li>Data: aabbcc</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article> 
 
                 </div>
             </div>

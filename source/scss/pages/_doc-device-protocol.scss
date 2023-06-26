@@ -22,6 +22,7 @@
 					font-size:14px;
 					background-color: $quote-color;
 					padding:2px;
+					overflow-wrap: break-word;
 					.data{
 						color:$primary-color;
 					}
