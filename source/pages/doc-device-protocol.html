@@ -1,10 +1,10 @@
 <!-- prettier-ignore -->
 @@include('global-header.html')
 
-@@include('navigation.html', {"documentation": "active", 'device-protocol' : 'active'})
+@@include('navigation.html', {"documentation": "active", 'device-protocol': 'active'})
 
 @@include('page-title.html',{
-	"title" : "Device communication protocol"
+	"title": "Device communication protocol"
 	
 })
 
@@ -17,6 +17,7 @@
                         <li><a class="scrollTo" href="#basics" >Basics</a></li>
                         <li><a class="scrollTo" href="#proto-GetInfo" >GetInfo</a></li>
                         <li><a class="scrollTo" href="#proto-CommControl" >CommControl</a></li>
+                        <li><a class="scrollTo" href="#proto-MemoryControl" >MemoryControl</a></li>
                     </ul>
                 </nav>
             </div>
@@ -65,7 +66,7 @@
                                 <li><strong>Direction</strong>: Request or Response. 0 for request</li>
                                 <li><strong>Command ID</strong>: A 7 bit ID indicating the action that we want to perform</li>
                                 <li><strong>Subfunction</strong>: A subcommand ID that specify the command</li>
-                                <li><strong>Data Length</strong>: Number of bytes in the data field. Maximum value : 65520 bytes </li>
+                                <li><strong>Data Length</strong>: Number of bytes in the data field. Maximum value: 65520 bytes </li>
                                 <li><strong>CRC32</strong>: A <abbr title="Cyclic Redundency Check">CRC</abbr> code that validates the frame integrity</li>
                             </ul>
 
@@ -88,7 +89,7 @@
                                         <li><strong>FailureToProceed (5)</strong>: Default failure message if anything prevents the device from completing the request</li>
                                     </ul>
                                 </li>
-                                <li><strong>Data Length</strong>: Number of bytes in the data field. Maximum value : 65520 bytes </li>
+                                <li><strong>Data Length</strong>: Number of bytes in the data field. Maximum value: 65520 bytes </li>
                                 <li><strong>CRC32</strong>: A <abbr title="Cyclic Redundency Check">CRC</abbr> code that validates the frame integrity</li>
                             </ul>
                         </div>
@@ -151,8 +152,8 @@
                                     <li>
                                         Response: <span class="payload">81010002<span class="data">0100</span>43d1aa41</span class="payload">
                                         <ul>
-                                            <li>major : 1</li>
-                                            <li>minor : 0</li>
+                                            <li>major: 1</li>
+                                            <li>minor: 0</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -206,7 +207,7 @@
                                     <li>
                                         Response: <span class="payload">81020010<span class="data"></span>deadbeefdeadbeefdeadbeefdeadbeef</span>966c969d</span class="payload">
                                         <ul>
-                                            <li>Software ID : deadbeefdeadbeefdeadbeefdeadbeef</li>
+                                            <li>Software ID: deadbeefdeadbeefdeadbeefdeadbeef</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -244,11 +245,11 @@
                                             <td>1</td>
                                             <td>Feature bitfields. Enabled when a bit value is 1
                                                 <ul>
-                                                    <li>0x80 : Memory read</li>
-                                                    <li>0x40 : Memory Write</li>
-                                                    <li>0x20 : Datalogging</li>
-                                                    <li>0x10 : User command</li>
-                                                    <li>0x08 : 64 bits support</li>
+                                                    <li>0x80: Memory read</li>
+                                                    <li>0x40: Memory Write</li>
+                                                    <li>0x20: Datalogging</li>
+                                                    <li>0x10: User command</li>
+                                                    <li>0x08: 64 bits support</li>
                                                 </ul>
                                             </td>
                                         </tr>
@@ -268,11 +269,11 @@
                                     <li>
                                         Response: <span class="payload">8103000001<span class="data">A8</span>e2980695<span class="data"></span></span class="payload">
                                         <ul>
-                                            <li>Memory read : Enabled</li>
-                                            <li>Memory Write : Disabled</li>
-                                            <li>Datalogging : Enabled</li>
-                                            <li>User command : Disabled</li>
-                                            <li>64 bits support : Enabled</li>
+                                            <li>Memory read: Enabled</li>
+                                            <li>Memory Write: Disabled</li>
+                                            <li>Datalogging: Enabled</li>
+                                            <li>User command: Disabled</li>
+                                            <li>64 bits support: Enabled</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -332,8 +333,8 @@
                                     <li>
                                         Response: <span class="payload">8104000002<span class="data">0304</span>07583f9a<span class="data"></span></span class="payload">
                                         <ul>
-                                            <li>Readonly regions : 3</li>
-                                            <li>Forbidden regions : 4</li>
+                                            <li>Readonly regions: 3</li>
+                                            <li>Forbidden regions: 4</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -422,17 +423,17 @@
                                     <li>
                                         Request: <span class="payload">01050002<span class="data">0102</span>46ef7975</span class="payload">
                                         <ul>
-                                            <li>Region Type : Forbidden(1)</li>
-                                            <li>Region index : 2</li>
+                                            <li>Region Type: Forbidden(1)</li>
+                                            <li>Region index: 2</li>
                                         </ul>
                                     </li>
                                     <li>
                                         Response: <span class="payload">810500000A<span class="data">0102800000008fffffff</span>61285840<span class="data"></span></span class="payload">
                                         <ul>
-                                            <li>Region Type : Forbidden(1)</li>
-                                            <li>Region index : 2</li>
-                                            <li>Start address : 0x80000000</li>
-                                            <li>End address : 0x8FFFFFFF</li>
+                                            <li>Region Type: Forbidden(1)</li>
+                                            <li>Region index: 2</li>
+                                            <li>Start address: 0x80000000</li>
+                                            <li>End address: 0x8FFFFFFF</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -486,7 +487,7 @@
                                     <li>
                                         Response: <span class="payload">8106000002<span class="data">0123</span>ddac4978<span class="data"></span></span class="payload">
                                         <ul>
-                                            <li>Number of <abbr title="Runtime Published Value">RPV</abbr> : 291</li>
+                                            <li>Number of <abbr title="Runtime Published Value">RPV</abbr>: 291</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -544,36 +545,36 @@
                                     <tbody>
                                         <tr>
                                             <td>0</td>
+                                            <td>&lt;rpv_id_0&gt;</td>
+                                            <td>2</td>
+                                            <td>ID of the <abbr title="Runtime Published Value">RPV</abbr> #0 in the batch </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;rpv_type_0&gt;</td>
+                                            <td>1</td>
+                                            <td>Data type of <abbr title="Runtime Published Value">RPV</abbr> #0 in the batch </td>
+                                        </tr>
+                                        <tr>
+                                            <td>3</td>
                                             <td>&lt;rpv_id_1&gt;</td>
                                             <td>2</td>
                                             <td>ID of the <abbr title="Runtime Published Value">RPV</abbr> #1 in the batch </td>
                                         </tr>
                                         <tr>
-                                            <td>2</td>
+                                            <td>5</td>
                                             <td>&lt;rpv_type_1&gt;</td>
                                             <td>1</td>
                                             <td>Data type of <abbr title="Runtime Published Value">RPV</abbr> #1 in the batch </td>
                                         </tr>
                                         <tr>
-                                            <td>3</td>
-                                            <td>&lt;rpv_id_2&gt;</td>
-                                            <td>2</td>
-                                            <td>ID of the <abbr title="Runtime Published Value">RPV</abbr> #2 in the batch </td>
-                                        </tr>
-                                        <tr>
-                                            <td>5</td>
-                                            <td>&lt;rpv_type_2&gt;</td>
-                                            <td>1</td>
-                                            <td>Data type of <abbr title="Runtime Published Value">RPV</abbr> #2 in the batch </td>
-                                        </tr>
-                                        <tr>
-                                            <td>3(N-1)</td>
+                                            <td>3N</td>
                                             <td>&lt;rpv_id_N&gt;</td>
                                             <td>2</td>
                                             <td>Data type of <abbr title="Runtime Published Value">RPV</abbr> #N in the batch </td>
                                         </tr>
                                         <tr>
-                                            <td>3(N-1)+2</td>
+                                            <td>3N+2</td>
                                             <td>&lt;rpv_type_N&gt;</td>
                                             <td>1</td>
                                             <td>Data type of <abbr title="Runtime Published Value">RPV</abbr> #N in the batch </td>
@@ -588,17 +589,17 @@
                                     <li>
                                         Request: <span class="payload">01070002 <span class="data">3002</span> 09cb5cef</span class="payload">
                                         <ul>
-                                            <li>Batch start index : 0x30</li>
-                                            <li>Batch size : 2</li>
+                                            <li>Batch start index: 0x30</li>
+                                            <li>Batch size: 2</li>
                                         </ul>
                                     </li>
                                     <li>
                                         Response: <span class="payload">8107000006<span class="data">aabb01ccdd22</span>428b8c8a<span class="data"></span></span class="payload">
                                         <ul>
-                                            <li><abbr title="Runtime Published Value">RPV ID #1</abbr> : 0xAABB</li>
-                                            <li><abbr title="Runtime Published Value">RPV type #1</abbr> :  int16 (0x01)</li>
-                                            <li><abbr title="Runtime Published Value">RPV ID #2</abbr> : 0xCCDD</li>
-                                            <li><abbr title="Runtime Published Value">RPV type #2</abbr> :  float32 (0x22)</li>
+                                            <li><abbr title="Runtime Published Value">RPV ID #1</abbr>: 0xAABB</li>
+                                            <li><abbr title="Runtime Published Value">RPV type #1</abbr>:  int16 (0x01)</li>
+                                            <li><abbr title="Runtime Published Value">RPV ID #2</abbr>: 0xCCDD</li>
+                                            <li><abbr title="Runtime Published Value">RPV type #2</abbr>:  float32 (0x22)</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -652,7 +653,7 @@
                                     <li>
                                         Response: <span class="payload">8108000001<span class="data">03</span>d44c4de4<span class="data"></span></span class="payload">
                                         <ul>
-                                            <li>Number of loops : 3</li>
+                                            <li>Number of loops: 3</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -719,7 +720,7 @@
                                             <td>1</td>
                                             <td>Bit field of attributes
                                                 <ul>
-                                                    <li>0x80 : Supports datalogging</li>
+                                                    <li>0x80: Supports datalogging</li>
                                                 </ul>
                                             </td>
                                         </tr>
@@ -766,7 +767,7 @@
                                     <li>
                                         Request: <span class="payload">01090001 <span class="data">02</span>715fc14a</span class="payload">
                                         <ul>
-                                            <li>Loop ID : 2</li>
+                                            <li>Loop ID: 2</li>
                                         </ul>
                                     </li>
                                     <li>
@@ -776,7 +777,7 @@
                                             <li>Loop type:  FixedFrequency (0)</li>
                                             <li>Attribute:  0x80
                                                 <ul>
-                                                    Support datalogging : Enabled
+                                                    Support datalogging: Enabled
                                                 </ul>
                                             </li>
                                             <li>Timestep:  0x000003E8 &#8594; 1000*100ns=100us (10KHz)</li>
@@ -969,14 +970,14 @@
                                     <li>
                                         Request: <span class="payload">02020006<span class="data">01020304AA55</span>4190d318</span class="payload">
                                         <ul>
-                                            <li>Session ID : 0x01020304</li>
-                                            <li>Challenge : 0xAA55</li>
+                                            <li>Session ID: 0x01020304</li>
+                                            <li>Challenge: 0xAA55</li>
                                         </ul>
                                     </li>
                                     <li>
                                         Response: <span class="payload">8202000006<span class="data">0102030455AA</span>4d4d3fd1</span class="payload">
                                         <ul>
-                                            <li>Session ID echo : 0x01020304</li>
+                                            <li>Session ID echo: 0x01020304</li>
                                             <li>Challenge response: 0x55AA</li>
                                         </ul>
                                     </li>
@@ -1193,7 +1194,7 @@
                                 <h4>Example</h4>
                                 <ul>
                                     <li>
-                                        Request: <span class="payload">02050004aabbccddf44f8fc8</span class="payload">
+                                        Request: <span class="payload">02050004<span class="data">aabbccdd</span>f44f8fc8</span class="payload">
                                         <ul>
                                             <li>Session ID: 0xAABBCCDD</li>
                                         </ul>
@@ -1202,6 +1203,157 @@
                                         Response: <span class="payload">82050000003adae4dd</span class="payload">
                                         <ul>
                                             <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+
+                    <p class="article-separator"></p>
+                    <p>
+                        <h2 id="proto-CommControl">MemoryControl  [0x03]</h2>
+                    </p>
+
+                    <article id="article-proto-MemoryControl-Read" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-MemoryControl-Read">
+                            Read  [0x1]
+                        </h3>
+                        <div id="proto-MemoryControl-Read" class="article-body collapse subfn-content">
+                            <p>
+                                Reads the device memory based on an address and a length. Can read multiple block in a single request
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;address_block_0&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>&lt;size_block_0&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt;+2</td>
+                                            <td>&lt;address_block_1&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt;+4</td>
+                                            <td>&lt;size_block_1&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>(&lt;addr_size&gt;+2)*N</td>
+                                            <td>&lt;address_block_N&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #N </td>
+                                        </tr>
+                                        <tr>
+                                            <td>(&lt;addr_size&gt;+2)*N+2</td>
+                                            <td>&lt;size_block_N&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #N </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;address_block_0&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>&lt;size_block_0&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt; + 2</td>
+                                            <td>&lt;data_block_0&gt;</td>
+                                            <td>&lt;size_block_0&gt;</td>
+                                            <td>Memory content of block #0 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&lt;addr_size&gt; + &lt;size_block_0&gt; + 2</td>
+                                            <td>&lt;address_block_1&gt;</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>Start address of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2*&lt;addr_size&gt; + &lt;size_block_0&gt; + 2</td>
+                                            <td>&lt;size_block_1&gt;</td>
+                                            <td>2</td>
+                                            <td>Size of memory block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2*&lt;addr_size&gt; + &lt;size_block_0&gt; + 4</td>
+                                            <td>&lt;data_block_1&gt;</td>
+                                            <td>&lt;size_block_1&gt;</td>
+                                            <td>Memory content of block #1 </td>
+                                        </tr>
+                                        <tr>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                            <td>etc</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">0301000C<span class="data">800012340008A41256780004</span>ced846ad  </span class="payload">
+                                        <ul>
+                                            <li>Address 1: 0x80001234</li>
+                                            <li>Size 1: 8</li>
+                                            <li>Address 2: 0xA4125678</li>
+                                            <li>Size 2: 4</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8301000018<span class="data">800012340008DEADBEEFDEADBEEFA4125678000411223344</span>94e68a2c</span class="payload">
+                                        <ul>
+                                            <li>Address 1: 0x80001234</li>
+                                            <li>Size 1: 8</li>
+                                            <li>Data 1: 0xDEADBEEFDEADBEEF</li>
+                                            <li>Address 2: 0xA4125678</li>
+                                            <li>Size 2: 4</li>
+                                            <li>Data 2: 0x11223344</li>
                                         </ul>
                                     </li>
                                 </ul>

@@ -1,7 +1,7 @@
 nav.left-menu {
     position: -webkit-sticky; // required for Safari
     position: sticky;
-    top: 15px;
+    top: $top-menu-height;
     background: $light-gray;
     padding: 15px 10px;
     display: flex;

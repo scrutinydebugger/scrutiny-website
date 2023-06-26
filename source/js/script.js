@@ -1,9 +1,11 @@
 ;(function ($) {
     "use strict"
 
-    const copyright_startdate=2023; 
-    const thedate=new Date().getFullYear();
-    let copyright_string = copyright_startdate;
+    const scrollOffset = -75 /// Top menu is 75px
+
+    const copyright_startdate = 2023
+    const thedate = new Date().getFullYear()
+    let copyright_string = copyright_startdate
     if (thedate !== copyright_startdate) {
         copyright_string += "-" + thedate
     }
@@ -37,7 +39,7 @@
         var target = $(this).attr("href")
         $("html, body").animate(
             {
-                scrollTop: $(target).offset().top,
+                scrollTop: $(target).offset().top + scrollOffset,
             },
             500
         )

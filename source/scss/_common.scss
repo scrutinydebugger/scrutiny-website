@@ -70,80 +70,14 @@ body {
 section.page-title {
   text-align: center;
   background-image: linear-gradient(45deg,#009EC5 0%, $primary-color 20%, $primary-color 80%,#02225B 100%);
-  padding:15px 0;
+  padding-top:$top-menu-height;
+
   h1 {
     color:white;
     font-weight: 500;
     margin:0;
     font-size:45px;
     line-height: normal;
-  }
-}
-
-// Promo Video
-.video {
-  position: relative;
-
-  &:before {
-    border-radius: 3px;
-  }
-
-  img {
-    width: 100%;
-    border-radius: 8px;
-  }
-
-  .video-button {
-    position: absolute;
-    left: 0;
-    top: 0;
-    display: flex;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-  }
-
-  .video-box {
-    a {
-      width: 100%;
-      height: 100%;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-pack: center;
-      -ms-flex-pack: center;
-      justify-content: center;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center;
-
-      i {
-        height: 125px;
-        width: 125px;
-        font-size: 40px;
-        background: $primary-color;
-        border-radius: 100%;
-        color: $light;
-        line-height: 125px;
-        text-align: center;
-        @include desktop {
-          height: 80px;
-          width: 80px;
-          line-height: 80px;
-          font-size: 22px;
-        }
-      }
-
-      iframe {
-        width: 100%;
-        height: 100%;
-      }
-    }
   }
 }
 
@@ -204,9 +138,6 @@ textarea.form-control {
   overflow: hidden;
 }
 
-.nav-up {
-  top: -70px;
-}
 
 button:focus,
 .slick-slide:focus {
