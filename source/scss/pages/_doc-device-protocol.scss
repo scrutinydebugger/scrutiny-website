@@ -4,6 +4,7 @@
 		.article-separator{
 			border-bottom:1px solid $border-color;
 			margin-bottom:25px;
+			margin-top:15px;
 			
 			@include tablet {
 				margin-bottom:10px;

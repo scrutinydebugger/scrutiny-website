@@ -11,10 +11,19 @@
 <section class="section doc-device-protocol p-0">
     <div class="container">
         <div class="row">
-			<div class="col-lg-12 align-self-center">
+            <div class="col-md-3 col-lg-2">
+                <nav class="left-menu">
+                    <ul>
+                        <li><a class="scrollTo" href="#basics" >Basics</a></li>
+                        <li><a class="scrollTo" href="#proto-GetInfo" >GetInfo</a></li>
+                        <li><a class="scrollTo" href="#proto-CommControl" >CommControl</a></li>
+                    </ul>
+                </nav>
+            </div>
+			<div class="col-lg-10 cold-md-9 align-self-center">
 				<div class="article-container text-lg-left">
                     <article class="article">
-                        <h2 class="article-title">
+                        <h2 class="article-title" id="basics">
                             Protocol basics
                         </h2>
                         <div class="article-body">
@@ -37,12 +46,12 @@
 
                             <p>
                                 Before sending a request to a device, the server needs to establish a session with it with a "Connect" request. When no connection 
-                                is established, the device will only answer to these 2 request <a class="scrollTo" href="#proto-CommControl-Discover">CommControl-Discover</a> 
-                                and to <a class="scrollTo" href="#proto-CommControl-Connect">CommControl-Connect</a>. All other request will be silently ignored.
+                                is established, the device will only answer to these 2 request <a class="scrollTo" href="#article-proto-CommControl-Discover" onclick="$('#proto-CommControl-Discover').collapse('show')">CommControl-Discover</a> 
+                                and to <a class="scrollTo" href="#article-proto-CommControl-Connect" onclick="$('#proto-CommControl-Connect').collapse('show')">CommControl-Connect</a>. All other request will be silently ignored.
                             </p>
 
                             <p>
-                                Once a session is established, periodic <a class="scrollTo" href="#proto-CommControl-Heartbeat">CommControl-Heartbeat</a> Requests must 
+                                Once a session is established, periodic <a class="scrollTo" href="#article-proto-CommControl-Heartbeat" onclick="$('#proto-CommControl-Heartbeat').collapse('show')">CommControl-Heartbeat</a> Requests must 
                                 be sent to keep the session active. The server uses the heartbeat mechanism to detect if a device is disconnected and 
                                 the device uses them to detect that a server is gone.
                             </p>
@@ -87,10 +96,10 @@
                     
                     <p class="article-separator"></p>
                     <p>
-                        <h2>GetInfo  [0x01]</h2>
+                        <h2 id="proto-GetInfo">GetInfo  [0x01]</h2>
                     </p>
 
-                    <article class="article subfn-article">
+                    <article id="article-proto-GetInfo-GetProtocolVersion" class="article subfn-article">
                         <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetProtocolVersion">
                             GetProtocolVersion  [0x1]
                         </h3>
@@ -151,7 +160,7 @@
                         </div>
                     </article>
                    
-                    <article class=" article subfn-article">
+                    <article id="article-proto-GetInfo-GetSoftwareId" class="article subfn-article">
                         <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetSoftwareId">
                             GetSoftwareId  [0x2]
                         </h3>
@@ -205,7 +214,7 @@
                         </div>
                     </article>
                    
-                    <article class=" article subfn-article">
+                    <article id="article-proto-GetInfo-GetSupportedFeatures" class="article subfn-article">
                         <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetSupportedFeatures">
                             GetSupportedFeatures  [0x3]
                         </h3>
@@ -271,7 +280,7 @@
                         </div>
                     </article>   
                     
-                    <article class=" article subfn-article">
+                    <article id="article-proto-GetInfo-GetSpecialMemoryRegionCount" class="article subfn-article">
                         <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetSpecialMemoryRegionCount">
                             GetSpecialMemoryRegionCount  [0x4]
                         </h3>
@@ -332,7 +341,7 @@
                         </div>
                     </article>    
                     
-                    <article class=" article subfn-article">
+                    <article id="article-proto-GetInfo-GetSpecialMemoryRegionLocation" class="article subfn-article">
                         <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetSpecialMemoryRegionLocation">
                             GetSpecialMemoryRegionLocation  [0x5]
                         </h3>
@@ -431,7 +440,7 @@
                         </div>
                     </article>  
 
-                    <article class=" article subfn-article">
+                    <article id="article-proto-GetInfo-GetRuntimePublishedValuesCount" class="article subfn-article">
                         <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetRuntimePublishedValuesCount">
                             GetRuntimePublishedValuesCount  [0x6]
                         </h3>
@@ -485,7 +494,7 @@
                         </div>
                     </article>  
 
-                    <article class=" article subfn-article">
+                    <article id="article-proto-GetInfo-GetRuntimePublishedValuesDefinition" class="article subfn-article">
                         <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetRuntimePublishedValuesDefinition">
                             GetRuntimePublishedValuesDefinition  [0x7]
                         </h3>
@@ -597,7 +606,7 @@
                         </div>
                     </article>
 
-                    <article class=" article subfn-article">
+                    <article id="article-proto-GetInfo-GetLoopCount" class="article subfn-article">
                         <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetLoopCount">
                             GetLoopCount  [0x8]
                         </h3>
@@ -651,7 +660,7 @@
                         </div>
                     </article>
 
-                    <article class=" article subfn-article">
+                    <article id="article-proto-GetInfo-GetLoopDefinition" class="article subfn-article">
                         <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-GetInfo-GetLoopDefinition">
                             GetLoopDefinition  [0x9]
                         </h3>
@@ -773,6 +782,426 @@
                                             <li>Timestep:  0x000003E8 &#8594; 1000*100ns=100us (10KHz)</li>
                                             <li>Name length: 5</li>
                                             <li>Name: "Hello"</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+
+                    <p class="article-separator"></p>
+                    <p>
+                        <h2 id="proto-CommControl">CommControl  [0x02]</h2>
+                    </p>
+
+                    <article id="article-proto-CommControl-Discover" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-CommControl-Discover">
+                            Discover  [0x1]
+                        </h3>
+                        <div id="proto-CommControl-Discover" class="article-body collapse subfn-content">
+                            <p>
+                                Request for a device to identify itself with his firmware ID and name
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;magic_number&gt;</td>
+                                            <td>4</td>
+                                            <td>Constant number to include in each request. Value=0x7E18FC68 </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;protocol_major&gt;</td>
+                                            <td>1</td>
+                                            <td>Protocol version major number</td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>&lt;protocol_minor&gt;</td>
+                                            <td>1</td>
+                                            <td>Protocol version minor number</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;firmware_id&gt;</td>
+                                            <td>16</td>
+                                            <td>Firmware ID unique to this firmware (hash)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>18</td>
+                                            <td>&lt;name_length&gt;</td>
+                                            <td>1</td>
+                                            <td>Length of the firmware display name</td>
+                                        </tr>
+                                        <tr>
+                                            <td>19</td>
+                                            <td>&lt;display_name&gt;</td>
+                                            <td>&lt;name_length&gt;</td>
+                                            <td>Name of the firmware encoded in ASCII</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">020100008a8f7da0</span class="payload">
+                                        <ul>
+                                            <li>Magic number: 0x7E18FC68</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8201000018<span class="data">0100deadbeef0123456789abcdefdeadbeef0548656c6c6f</span>4d4d3fd1</span class="payload">
+                                        <ul>
+                                            <li>Protocol major: 1</li>
+                                            <li>Protocol minor: 0</li>
+                                            <li>firmware ID:  0xdeadbeef0123456789abcdefdeadbeef</li>
+                                            <li>Name length: 5</li>
+                                            <li>Name: "Hello"</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+
+                    <article id="article-proto-CommControl-Heartbeat" class=" article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-CommControl-Heartbeat">
+                            Heartbeat  [0x2]
+                        </h3>
+                        <div id="proto-CommControl-Heartbeat" class="article-body collapse subfn-content">
+                            <p>
+                                Keep a connection to a device alive. Meaning the device will refuse any other incoming Connect request as long heartbeat are being sent
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;session_id&gt;</td>
+                                            <td>4</td>
+                                            <td>The session ID returned by the device on a <a class="scrollTo" href="#proto-CommControl-Connect" onclick="$('#proto-CommControl-Connect').collapse('show')">Connect</a> response</td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>&lt;challenge&gt;</td>
+                                            <td>2</td>
+                                            <td>
+                                                A 16 bits random number that the device must use in its response to prove that it is still alive. 
+                                                The challenge response is expected to be the binary complement of that value
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;session_id&gt;</td>
+                                            <td>4</td>
+                                            <td>An echo of the &lt;session_id&gt; given in the request</td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>&lt;challenge_response&gt;</td>
+                                            <td>2</td>
+                                            <td>
+                                                The binary complement of the &lt;challenge&gt; field in the request
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">02020006<span class="data">01020304AA55</span>4190d318</span class="payload">
+                                        <ul>
+                                            <li>Session ID : 0x01020304</li>
+                                            <li>Challenge : 0xAA55</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8202000006<span class="data">0102030455AA</span>4d4d3fd1</span class="payload">
+                                        <ul>
+                                            <li>Session ID echo : 0x01020304</li>
+                                            <li>Challenge response: 0x55AA</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+                    <article id="article-proto-CommControl-GetParams" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-CommControl-GetParams">
+                            GetParams  [0x3]
+                        </h3>
+                        <div id="proto-CommControl-GetParams" class="article-body collapse subfn-content">
+                            <p>
+                                Request for the device communication parameters
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;max_rx_data_size&gt;</td>
+                                            <td>2</td>
+                                            <td>Maximum size that a request data payload can have. Tied to the internal comm buffer size. </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;max_tx_data_size&gt;</td>
+                                            <td>2</td>
+                                            <td>Maximum size that a response data payload can have. Tied to the internal comm buffer size. </td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>&lt;max_bitrate_bps&gt;</td>
+                                            <td>4</td>
+                                            <td>Maximum bitrate to respect during communication. 0 means no limit</td>
+                                        </tr>
+                                        <tr>
+                                            <td>8</td>
+                                            <td>&lt;heartbeat_timeout_us&gt;</td>
+                                            <td>4</td>
+                                            <td>
+                                                Amount of time that the device will wait for a heartbeat request before declaring that the server is gone. 
+                                                Value in microseconds
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>12</td>
+                                            <td>&lt;rx_timeout_us&gt;</td>
+                                            <td>4</td>
+                                            <td>Amount of time that the device will wait without receiving data before resetting its reception state machine</td>
+                                        </tr>
+                                        <tr>
+                                            <td>16</td>
+                                            <td>&lt;addr_size&gt;</td>
+                                            <td>1</td>
+                                            <td>Address size of the device. All addresses will be encoded according to that size</td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">02030000890ba9ce</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8203000011<span class="data">00800100000186a00000c35004</span>d5850b1d</span class="payload">
+                                        <ul>
+                                            <li>Max request data size: 128 bytes</li>
+                                            <li>Max response data size: 256 bytes</li>
+                                            <li>Max bitrate: 100kbps (0x000186a0)</li>
+                                            <li>RX timeout: 50ms (0000c350)</li>
+                                            <li>Address size: 4 bytes</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+                    <article id="article-proto-CommControl-Connect" class=" article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-CommControl-Connect">
+                            Connect  [0x4]
+                        </h3>
+                        <div id="proto-CommControl-Connect" class="article-body collapse subfn-content">
+                            <p>
+                                Request the device to start a session
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;magic_number&gt;</td>
+                                            <td>4</td>
+                                            <td>Constant number to include in each request. Value=0x82902266 </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;magic_number&gt;</td>
+                                            <td>4</td>
+                                            <td>Echo of the magic number. Value=0x82902266</td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>&lt;session_id&gt;</td>
+                                            <td>4</td>
+                                            <td>Session ID to use in heartbeat requests</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">02040004829022669fe81eca</span class="payload">
+                                        <ul>
+                                            <li>Magic number: 0x82902266</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8204000008<span class="data">82902266aabbccdd</span>a1ac4349</span class="payload">
+                                        <ul>
+                                            <li>Magic number: 0x82902266</li>
+                                            <li>Session ID: 0xAABBCCDD</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+                    <article id="article-proto-CommControl-Disconnect" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-CommControl-Disconnect">
+                            Disconnect  [0x5]
+                        </h3>
+                        <div id="proto-CommControl-Disconnect" class="article-body collapse subfn-content">
+                            <p>
+                                Inform the device that we want to disconnect and destroy the session
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;session_id&gt;</td>
+                                            <td>4</td>
+                                            <td>The session ID gotten in the  <a class="scrollTo" href="#article-proto-CommControl-Connect" onclick="$('#proto-CommControl-Connect').collapse('show')">Connect</a> request </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                - Empty
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">02050004aabbccddf44f8fc8</span class="payload">
+                                        <ul>
+                                            <li>Session ID: 0xAABBCCDD</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">82050000003adae4dd</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
                                         </ul>
                                     </li>
                                 </ul>
