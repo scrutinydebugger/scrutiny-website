@@ -1,0 +1,65 @@
+.doc-device-protocol {
+	.article-container {
+		@extend .content-container;
+		.article-separator{
+			border-bottom:1px solid $border-color;
+			margin-bottom:25px;
+			margin-top:15px;
+			
+			@include tablet {
+				margin-bottom:10px;
+			}
+		}
+
+		.subfn-article{
+			border:1px solid $quote-color;
+			margin-top:10px;
+			padding-bottom: 0 !important; // Override the default padding because these articles can collapse. 
+
+			.subfn-content{
+				padding: 10px;
+				
+				.payload {
+					text-transform: uppercase;
+					font-size:14px;
+					background-color: $quote-color;
+					padding:2px;
+					overflow-wrap: break-word;
+					.data{
+						color:$primary-color;
+					}
+				}
+			}
+
+			.subfn-heading{
+				cursor: pointer;
+				position:relative;
+				margin-left:10px;
+				padding-left: 25px;
+				font-size:20px;
+
+				
+				&:before {
+					font-family: 'themify';
+					position: absolute;
+					left: 0;
+					font-weight: 600;
+					font-size: 15px;
+					top: 10px;
+				}
+
+				&:not([aria-expanded="true"]):before{
+					content: "\e649";
+				}
+
+				&[aria-expanded="true"]:before{
+					content: "\e64b";
+				}
+			}
+		}
+
+		.article {
+			@extend .article-content;
+		}
+	}
+}

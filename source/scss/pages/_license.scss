@@ -1,0 +1,8 @@
+.license {
+	.article-container {
+		@extend .content-container;
+		.article {
+			@extend .article-content;
+		}
+	}
+}

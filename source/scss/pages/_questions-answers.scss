@@ -1,0 +1,42 @@
+.questions-answers {
+	.article-container {
+		@extend .content-container;
+		.article {
+			@extend .article-content;
+			
+			margin-top:25px;
+			
+			border:1px solid $quote-color;
+			  
+			.qa-answer{
+				padding: 10px;
+			}
+
+			.qa-title{
+				cursor: pointer;
+				position:relative;
+				margin-left:10px;
+				padding-left: 25px;
+				font-size:20px;
+
+				
+				&:before {
+					font-family: 'themify';
+					position: absolute;
+					left: 0;
+					font-weight: 600;
+					font-size: 15px;
+					top: 10px;
+				}
+
+				&:not([aria-expanded="true"]):before{
+					content: "\e649";
+				}
+
+				&[aria-expanded="true"]:before{
+					content: "\e64b";
+				}
+			}
+		}
+	}
+}

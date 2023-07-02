@@ -1,18 +1,89 @@
+<!-- prettier-ignore -->
 @@include('global-header.html')
 
 @@include('navigation.html', {"about": "active"})
 
 @@include('page-title.html',{
-	"title" : "About this project",
-    "description" : "Page under writing"
+	"title" : "About this project"
 })
 
 <section class="section about p-0">
-	<div class="container">
+    <div class="container">
+        <div class="row">
+			<div class="col-lg-12 align-self-center">
+				<div class="article-container text-lg-left">
+                    <article class="article">
+                        <h2 class="article-title">History</h2>
+                        <div class="article-body">
+                            <p>
+                                Scrutiny Debugger is an open source project published under <a href="license.html">MIT license</a> (no restrictions) on Github. 
+                                Is has been originally developed in Montreal, Canada. 
+                                Its development has started in 2021 and is, up to now, developed on a voluntary basis during the developers personal free time. 
+                            </p>
+                            <p>
+                                The motivation for this project came from the fact that no adequate open-source calibration tools seemed available back in 2021, and it 
+                                still seems to be the case at the moment of the first release (2023). The capabilities of Scrutiny is a happy mix of the best feature that the 
+                                authors experienced with various paid software used in the automotive industry. We have many additional features in our wishlist, but can only
+                                implement those that our free time allows.
+                            </p>
+                            <p>
+                                The IT infrastructure (website, <abbr title="Continuous Integration">CI</abbr> server/agents, domains) is funded by the developers personal money.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="article">
+                        <h2 class="article-title">The technologies</h2>
+                        <div class="article-body">
+                            <p>
+                                With flexibility as a key driver for development, most features from Scrutiny are written using recent & free technologies.
+                                The key takeaways are 
+                                <ul>
+                                    <li>The <abbr title="Graphical User Interface">GUI</abbr> is an <a href="https://www.electronjs.org/">Electron</a>/<a href="https://react.dev/">React</a> project</li> 
+                                    <li>The server is written in <a href="https://www.python.org/">Python 3.8+</a> and is fully typed. Verified against <a href="https://www.mypy-lang.org/">mypy</a> static analyzer</li>
+                                    <li>The communication between clients and the server is done through websockets</li>
+                                    <li>The instrumentation library is written <a href="https://en.cppreference.com/w/cpp/11">C++11</a>, built with <a href="https://cmake.org/">CMake</a> 
+                                        and verified through a <a href="http://cppcheck.net/">cppcheck</a> (free static analyzer). </li>
+                                    <li>All communication protocols are custom.</li>
+                                    <li>Everything is verified through Continuous Integration using <a href="https://www.jenkins.io/">Jenkins</a></li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+                    
+                    <article class="article">
+                        <h2 class="article-title">Contributing</h2>
+                        <div class="article-body">
+                            <p>
+                                <dl>
+                                    <dt>Github</dt>
+                                    <dd><a href="https://github.com/scrutinydebugger">https://github.com/scrutinydebugger</a></dd>
+
+                                    <dt>Jenkins CI</dt>
+                                    <dd><a href="https://jenkins.scrutinydebugger.com">https://jenkins.scrutinydebugger.com</a></dd>
+                                </dl>
+                            </p>
+
+                            <p>
+                                Contributions are welcome. To discuss a specific subject about the software, please open a Github issue on the relevant repository. 
+                                Once discussed, a pull request can be proposed.
+                            </p>
+                            <p>
+                                To discuss a higher-level subject, don't hesitate to send us an email. 
+                                <div class="text-center">
+                                    <a href="mailto:scrutinydebugger@gmail.com" class="mt-4 btn btn-main-md">Contact us</a>
+                                </div>
+                            </p>
+                        </div>
+                    </article>
+
+				</div>
+			</div>
+        </div>
     </div>
 </section>
 
-
+<!-- prettier-ignore -->
 @@include('footer.html')
 
 @@include('global-footer.html')

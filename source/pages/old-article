@@ -1,0 +1,45 @@
+                <article class="article">
+                    <h2 class="article-title">A debugger or a calibration tool?</h2>
+                    <div class="article-body">
+                        <p>
+                            Most developers know what a debugger is. Breakpoints, stepping and watching variables. A calibration tool is a term far less popular
+                            than a debugger. It doesn't have the same purpose although some functionalities can overlap.
+                        </p>
+                        <p>
+                            The term calibration tool is mainly known by the aerospace and automotive/sporting industry. It's a software meant to send configuration to a 
+                            device and read back it's behavior. The most common example would be a PID tuning. The P,I and D gains are tunable values. A developer will test the system 
+                            response in a situation with some given gains, check how the variables evolve and then adjust these gains. It's a high level debugging process. 
+                            These tunable parameters are often identified by a unique ID that the calibration tool knows about. Writing and reading will be done through a 
+                            communication channel (serial port, CAN bus, socket) by sending a read or write command for the given parameter ID.
+                        </p>
+
+                        <p>
+                            What if the tunable parameters are ALL the variables? Instead of exposing them explicitly in the embedded firmware by assigning IDs, 
+                            they can be automatically
+                            discovered using the debug symbols of a binary. That's what the aerospace and automotive industry have aimed for using protocols such 
+                            as <a href="https://en.wikipedia.org/wiki/XCP_(protocol)">XCP</a> and the <a href="https://www.asam.net/standards/detail/mcd-2-mc/">A2L</a> 
+                            file format. Such tool can be very handy to monitor the execution of a program and find defects; we're approaching a debugger.
+                            The standards used by these industries are heavy. Software that supports them are costly and not so tailored
+                            to the programmer needs. Note that only advanced calibration tools uses standard protocols and file format, 
+                            many are custom and use the ID-based approach.
+                        </p>
+
+                        <p>
+                             Scrutiny is a free software that uses the same approach as presented above, using debug symbols and embedded instrumentation, 
+                             but implements no standard protocol; it's fully custom. <br />
+
+                             It's able to read/write the target device memory by gently asking the device to return its content. The device will comply because it is running an 
+                             instrumentation library part of the Scrutiny project. Then, using the firmware debugging symbols, Scrutiny can interpret 
+                             these memory dumps and present the variable content to the user. Additionally, it is possible to request the device to monitor some memory 
+                             region until a certain event happens (a trigger condition). By doing so, it is also possible
+                             to make high speed graph of the device internal variables, providing very effective high-level, but also low-level, debugging capabilities.
+                        </p>
+
+                        <p>
+                            Once we have control over the internal memory of a device (through a GUI or a Python script), the possibilities become quite vast.
+                            Hardware-in-the-loop testing becomes possible, automated with a Python script. Device configuration such as EEPROM writing requires no additional software or protocol.
+                            Stepping and reading local variables are not possibles, but these limitations are easily worked around with the graphing feature and by temporarily 
+                            making variables statics.
+                        </p>
+                    </div>
+                </article>

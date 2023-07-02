@@ -10,11 +10,37 @@
 
 @import 'button.scss';
 
+@import 'nav.scss';
+
 @import 'components/navigation.scss';
 
 @import 'components/footer.scss';
 
 @import 'components/modal.scss';
 
+@import 'pages/_home.scss';
+
 @import 'pages/_doc-api-ref.scss';
 
+@import 'pages/_guide-introduction.scss';
+
+@import 'pages/_guide-instrumentation.scss';
+
+@import 'pages/_about.scss';
+
+@import 'pages/_questions-answers.scss';
+
+@import 'pages/_license.scss';
+
+@import 'pages/_download.scss';
+
+@import 'pages/_guide-installation.scss';
+
+
+@import 'pages/_doc-api-ref.scss';
+
+@import 'pages/_doc-architecture.scss';
+
+@import 'pages/_doc-device-protocol.scss';
+
+@import 'pages/_doc-python-sdk.scss';

@@ -1,17 +1,56 @@
+<!-- prettier-ignore -->
 @@include('global-header.html')
 @@include('navigation.html', {"home": "active"})
 
-@@include('page-title.html',{
-	"title" : "Scrutiny Debugger",
-	"description" : "Debugging, development and testing tool for C/C++ embedded application that works through instrumentation"
-})
 
-
-<section class="section home p-0">
+<section class="section gradient-banner pad-menu">
 	<div class="container">
-    </div>
+		<div class="row align-items-center">
+			<div class="col-md-12 order-2 order-md-1 text-center text-md-left">
+				<h1 class="text-white font-weight-bold mb-4">Scrutiny Debugger</h1>
+				<p class="text-white mb-5">An open source debugging, development and testing tool for C/C++ embedded application that works through instrumentation.</p>
+				<a href="guide-introduction.html" class="btn btn-main-md">Read the introduction</a>
+			</div>
+		</div>
+	</div>
 </section>
 
+<section class="section pt-0 position-relative pull-top">
+	<div class="container">
+		<div class="rounded shadow p-5 bg-white">
+			<div class="row">
+				<div class="col-lg-4 col-md-6 col-xs-12 mt-lg-0 mt-md-0 mt-0 text-center">
+					<i class="ti-target text-primary h1"></i>
+					<h3 class="mt-4 text-capitalize h5 ">Debug without interfering</h3>
+					<p class="regular text-muted">Get a view your C++ app memory content without interfering with the execution flow of your embedded application</p>
+				</div>
+				<div class="col-lg-4 col-md-6 col-xs-12 mt-lg-0 mt-md-0 mt-5 text-center">
+					<i class="ti-plug text-primary h1"></i>
+					<h3 class="mt-4 text-capitalize h5 ">Enable hardware in the loop testing</h3>
+					<p class="regular text-muted">Variables are writable through a <abbr title="Graphical User Interface">GUI</abbr> and <abbr title="Software Development Kit">SDK</abbr>, enabling easy <abbr title="Hardware in the loop"> HIL</abbr> testing</p>
+				</div>
+				<div class="col-lg-4 col-md-6 col-xs-12 mt-lg-0 mt-md-5 mt-5 text-center">
+					<i class="ti-settings text-primary h1"></i>
+					<h3 class="mt-4 text-capitalize h5 ">Configure during production</h3>
+					<p class="regular text-muted">No need for an additional configuration tool when all the variables are accessible through a GUI or a python script</p>
+					</p>
+				</div>
+				<div class="col-lg-4 col-md-6 col-xs-12 mt-5 text-center">
+					<i class="ti-stats-up text-primary h1"></i>
+					<h3 class="mt-4 text-capitalize h5 ">Catch and plot fast events</h3>
+					<p class="regular text-muted">Embedded graphs let you plot several variables with a sampling rate equivalent to your device task frequency. 
+						Multiple frequencies are possible, it is thread-safe.</p>
+				</div>
+				<div class="col-lg-4 col-md-6 col-xs-12 mt-5 text-center">
+					<i class="ti-layout text-primary h1"></i>
+					<h3 class="mt-4 text-capitalize h5 ">Build your dashboard</h3>
+					<p class="regular text-muted">Make a dashboard with the GUI and reload your debug session later on</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
 
+<!-- prettier-ignore -->
 @@include('footer.html')
 @@include('global-footer.html')

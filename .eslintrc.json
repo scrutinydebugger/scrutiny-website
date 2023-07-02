@@ -7,10 +7,6 @@
     "extends": ["eslint:recommended"],
     "globals": {
     },
-    "ignorePatterns": [
-        "webapp/**/*.js",
-        "tests/**/*.js"
-    ],
     "parserOptions": {
         "sourceType": "module"
     },

@@ -1,19 +1,637 @@
+<!-- prettier-ignore -->
 @@include('global-header.html')
 
 @@include('navigation.html', {"guide": "active", 'instrumentation' : 'active'})
 
 @@include('page-title.html',{
-	"title" : "Instrumenting a software",
-    "description" : "Page under writing"
+	"title" : "Instrumenting a software"
 	
 })
 
-<section class="section guide-instrumentation p-0">
-	<div class="container">
-    </div>
+<section class="section guide guide-instrumentation p-0">
+    <div>
+		<div class="row">
+            <div class="col-md-3 col-lg-2">
+				<nav class="left-menu">
+					<ul>
+						<li><a class="scrollTo" href="#getting-embedded" >Getting scrutiny-embedded</a>
+                            <ul>
+                                <li><a class="scrollTo" href="#intree-build" >In-tree build</a></li>
+                                <li><a class="scrollTo" href="#building-out-of-tree" >Building out of tree</a></li>
+                                <li><a class="scrollTo" href="#automating-out-of-tree-build" >Automating out-of-tree builds</a></li>
+                            </ul>
+
+                            </li>
+						<li><a class="scrollTo" href="#configuration" >Configuration</a>
+                            <ul>
+                                <li><a class="scrollTo" href="#basic-setup" >Basic setup</a></li>
+                                <li><a class="scrollTo" href="#possible-configs" >Possible configuration</a></li>
+                            </ul>
+                        </li>
+						<li><a class="scrollTo" href="#connecting-streams" >Connecting the streams</a></li>
+						<li><a class="scrollTo" href="#datalogging" >Datalogging</a>
+                            <ul>
+                                <li><a class="scrollTo" href="#datalogging-basics" >Basics</a></li>
+                                <li><a class="scrollTo" href="#datalogging-configuration" >Configuration</a></li>
+                            </ul>
+                        </li>
+                        <li><a class="scrollTo" href="#postbuild-toolchain" >Postbuild toolchain</a>
+                            <ul>
+                                <li><a class="scrollTo" href="#sfd-structure" >The SFD structure</a></li>
+                                <li><a class="scrollTo" href="#generating-the-sfd" >Generating the SFD file</a></li>
+                            </ul>
+                        </li>
+					</ul>
+				</nav>
+			</div>
+			<div class="col-md-9 col-lg-10">
+                <div class="article-container">
+                    <article class="article">
+                        <h2 class="article-title" id="getting-embedded">Getting scrutiny-embedded</h2>
+                        <div class="article-body">
+                            <p>
+                                The Scrutiny instrumentation library is hosted on <a href="https://github.com/scrutinydebugger/scrutiny-embedded">Github</a> and
+                                uses CMake as build system. 
+                            </p>
+
+                            <p>
+                                Scrutiny is intended to work on embedded baremetal platforms, which may have uncommon architecture. For that reason, no prebuilt release of 
+                                the instrumentation library is provided. As a developer, you will need to build scrutiny-embedded yourself.
+                            </p>
+
+                            <h3 id="intree-build">In-tree build</h3>
+                            <p>
+                                A simple in-tree build is possible by adding the scrutiny-embedded folder to your project.
+                            </p>
+                            <pre><code class="language-bash">git clone https://github.com/scrutinydebugger/scrutiny-embedded</code></pre>
+                            <pre><code class="language-cmake">#CMakeLists.txt
+project(MyProject)
+
+add_subdirectory(scrutiny-embedded/lib)
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} scrutiny-embedded)
+</code></pre>
+                        
+                            <h3 id="building-out-of-tree">Building out of tree</h3>
+                            <p>
+                                Another option would be to build the library as a standalone project, then adding the build byproduct to your project.
+                                <pre><code class="language-bash">git clone https://github.com/scrutinydebugger/scrutiny-embedded</code></pre>
+                                <pre><code class="language-bash">./scrutiny-embedded/scripts/build.sh</code></pre>
+                            </p>
+
+                            <p>
+                                The static library and the include files will be located in <code>scrutiny-embedded/install</code>. You can then copy the install folder
+                                content to your project, say in <code>3rdparty/scrutiny</code> and link to the library like below, assuming the correct toolchain file is set 
+                                for your device.
+                            </p>
+                            
+
+                            <pre>
+<code class="language-cmake">#CMakeLists.txt
+project(MyProject)
+
+add_executable(${PROJECT_NAME} main.cpp)
+
+target_link_libraries(${PROJECT_NAME} 3rdparty/scrutiny/scrutiny-embedded.a)
+target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/scrutiny/inc)
+</code></pre>
+                            <p>
+                                It is possible to enable/disable some features when building as so <code class="language-bash">SCRUTINY_SUPPORT_64BITS=0 ./scrutiny-embedded/scripts/build.sh</code>.
+                                <br />
+                                The list of possible configurations are provided below
+
+                                <dl>
+                                    <dt>SCRUTINY_SUPPORT_64BITS (default 1)</dt>
+                                    <dd>
+                                        When enabled, Scrutiny will be able to handle 64 bits types as <abbr title="Runtime Published Value">RPV</abbr> and as datalogging operand.
+                                        Disabling that feature will not prevent memory inspection as they happen with raw memory dumps.
+                                        <br />
+                                        Disabling 64 bits support is mainly useful to reduce the memory footprint of the library on small microcontrollers.
+                                    </dd>
+
+                                    <dt>SCRUTINY_ENABLE_DATALOGGING (default 1)</dt>
+                                    <dd>
+                                        When enabled, embedded graphs will be possible. The datalogging feature requires a non-negligible ROM footprint which
+                                        can be an issue on code size limited devices.
+                                    </dd>
+                                </dl>
+                            </p>
+                            
+                            <h3 id="automating-out-of-tree-build">Automating out-of-tree builds</h3>
+                            <p>
+                                It is possible to remove the manual steps from the out-of-tree build approach by using the versatile ExternalProject module of CMake.
+                                When using this technique, the source code of the specified version will be downloaded from Github during your project configuration phase.
+                            </p>
+
+                            <pre><code language="cmake">
+cmake_minimum_required(VERSION 3.14)
+project(CMakeDemoProject)
+
+include(ExternalProject)
+
+# Where the includes and static lib will be written
+set(SCRUTINY_DEST_FOLDER ${CMAKE_BINARY_DIR}/3rdparty/scrutiny)
+
+# Fetch and build scrutiny
+set(SCRUTINY_PREFIX ${CMAKE_BINARY_DIR}/scrutiny)
+ExternalProject_Add(scrutiny-embedded
+    GIT_REPOSITORY https://github.com/scrutinydebugger/scrutiny-embedded
+    GIT_TAG v1.0     # Git Tag, branch or commit hash
+    PREFIX ${SCRUTINY_PREFIX}
+    BINARY_DIR ${SCRUTINY_PREFIX}/build
+    CMAKE_ARGS
+        -DSCRUTINY_ENABLE_DATALOGGING=1
+        -DSCRUTINY_SUPPORT_64BITS=1
+    INSTALL_COMMAND 
+        COMMAND ${CMAKE_COMMAND} --install ${SCRUTINY_PREFIX}/build
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${SCRUTINY_PREFIX}/build/install/ ${SCRUTINY_DEST_FOLDER}
+    BUILD_BYPRODUCTS
+        ${SCRUTINY_DEST_FOLDER}/libscrutiny-embedded.a
+)
+
+add_executable(${PROJECT_NAME} main.cpp)
+
+# Make scrutiny a dependency to guarantee the build order.
+add_dependencies(${PROJECT_NAME} scrutiny-embedded)
+
+# Makes scrutiny available to the compiler (headers and static lib)
+target_link_libraries(${PROJECT_NAME} ${SCRUTINY_DEST_FOLDER}/libscrutiny-embedded.a)
+target_include_directories(${PROJECT_NAME} PRIVATE ${SCRUTINY_DEST_FOLDER}/inc)
+</code></pre>
+                        </div>
+                    </article>
+
+                    <article class="article">
+                        <h2 class="article-title" id="configuration">Configuration</h2>
+                        <div class="article-body">
+                            <h3 id="basic-setup">Basic setup</h3>
+                            <p>
+                                In order to get Scrutiny running, the minimum steps are
+                                <ol>
+                                    <li>Define two buffers for Scrutiny communication</li>
+                                    <li>Instantiate a <code language="c++">scrutiny::Config</code> and attach these buffers</li>
+                                    <li>Pass your configuration object to <code language="c++">MainHandler::init</code> </li>
+                                    <li>Call <code language="c++">MainHandler::process</code> at every loop of your main task and pass the difference of time 
+                                        since the last call in multiples of 100 nanoseconds
+                                    </li>
+                                </ol>
+                                A basic usage of Scrutiny without datalogging nor external communication would look like this.
+                            </p>
+                            <pre><code class="language-c++">//main.cpp
+#include &lt;cstdint&gt;
+#include "scrutiny.hpp"
+ 
+uint8_t scrutiny_rx_buffer[64];
+uint8_t scrutiny_tx_buffer[128];
+
+void main(void){
+    scrutiny::Config config;
+    config.set_buffers(
+        scrutiny_rx_buffer, sizeof(scrutiny_rx_buffer),     // Receive
+        scrutiny_tx_buffer, sizeof(scrutiny_tx_buffer)      // Transmit 
+        );
+    // Additional configuration possible
+
+    scrutiny::MainHandler scrutiny_main;
+    scrutiny_main.init(&config);
+    
+    uint32_t last_timestamp = get_timestamp_microsec();
+    while(true){
+        uint32_t const timestamp = get_timestamp_microsec();
+        // ... 
+        // ...
+
+        uint32_t const time_delta = (timestamp-last_timestamp);
+        scrutiny_main.process( time_delta*10U );  // Timesteps are multiples of 100ns
+        last_timestamp = timestamp;
+    }
+}
+                            </code></pre>
+                            <h3 id="possible-configs">Possible configurations</h3>
+                            <p>
+                                Let's now look at all the possible optional features and how to configure them.
+                            </p>
+
+                            <h4>Display name</h4>
+                            <p>
+                                A simple string that will broadcast when replying to a DISCOVER message sent by the server.
+                                This value will be accessible by the server and displayed in the GUI while scanning for devices. 
+                                It is specifically useful when connecting to multi-device bus where the devices have a firmware for which the server 
+                                has no <abbr title="Scrutiny Firmware Description">SFD</abbr> installed
+                                <br />
+                                <code class="language-c++">config.display_name = "Drone Controller V4";</code>
+                            </p>
+
+                            <h4>Maximum bitrate</h4>
+                            <p>
+                                It is possible to specify a maximum bitrate to respect on the communication channel. 
+                                This value is broadcast to the server and the server enforces it, 
+                                not the device. This can be handy to avoid saturating a shared bus. 
+                                <br />
+                                <code class="language-c++">config.max_bitrate = 100000;  // 100kbps</code>
+                                <br/>
+                                <br/>
+                                If unset, the value will default to 0, meaning "no limit"
+                            </p>
+
+                            <h4>Session seed</h4>
+                            <p>
+                                A simple mechanism exists to avoid catastrophic behaviour if more than one server tries to connect to a device.
+                                Upon connection, the device will generate a 32 bits session ID that will be given to the server and used to keep the session alive.
+                                To reduce the risk of collision, a seed can be given. This value should be as random as possible.
+                                <br />
+                                <code class="language-c++">config.session_counter_seed = randint();</code>
+                            </p>
+
+
+                            <h4>Forbidden and read-only regions</h4>
+                            <p>
+                                In many devices, some memory regions are to be avoided or else, a critical component may be affected and a dramatic crash may follow.
+                                To avoid such situations, Scrutiny can be instructed to avoid accessing 
+                                them completely (forbidden) or allow read operation only (read-only).  By default, the whole memory is accessible in both read &amp; write.
+                            </p>
+                            <pre><code class="language-c++">scrutiny::AddressRange readonly_ranges[] = {
+    scrutiny::AddressRange(0x100000, 0x80000000),  // start, stop
+    scrutiny::AddressRange(0xC0000000, 0xFFFFFFFF),
+    scrutiny::AddressRange(__heap_start, __heap_end)
+};
+
+scrutiny::AddressRange forbidden_ranges[] = {
+    scrutiny::AddressRange(0, 0xFFFFF),
+    scrutiny::tools::make_address_range(some_critical_buffer, sizeof(some_critical_buffer))
+};
+
+config.set_readonly_address_range(readonly_ranges, sizeof(readonly_ranges) / sizeof(readonly_ranges[0]));
+config.set_forbidden_address_range(forbidden_ranges, sizeof(forbidden_ranges) / sizeof(forbidden_ranges[0]));</code></pre>
+                            <p>
+                                The example above defines 3 read-only region and 2 forbidden regions. These restrictions are enforced twice.
+                                The device will prevent any unauthorized access by replying to read or write request with a Nack. In order to avoid unnecessary communication overhead,
+                                these read-only and forbidden region are given to the server during the initial handshake; therefore the server will avoid sending any  
+                                read/write request that will be denied.
+                            </p>
+
+                            <p>
+                                The <code class="language-c++">scrutiny::AddressRange</code> structure defines a range with start/stop addresses. The helper
+                                <code class="language-c++">scrutiny::tools::make_address_range</code> will define the range with a start and a size.
+                            </p>
+
+                            <p>
+                                Finally, note that the write capability can be globally disabled by setting <code class="language-c++">config.memory_write_enable = false;</code>
+                            </p>
+
+                            <h4>Runtime Published Values (RPVs)</h4>
+                            <p>
+                                Reading a writing variables depends on the post-build toolchain capability to discover them using the debug symbols.
+                                If you want to expose a variable, but the Scrutiny toolchain fails to find it, you can always fallback on RPVs. 
+                                These Runtime Published Values, as their name suggest, are defined during the runtime of the embedded application. In other words, they
+                                are explicitly defined in C++, identified by a 16 bits ID and communicated to the server during the initial handshake.
+                            </p>
+
+                            <p>
+                                <abbr title="Runtime Published Value">RPV</abbr> are readable and writable by the clients, just like variables. In the device, reading or writing 
+                                will trigger a callback that must be implemented by the developer. See the following example.
+                            </p>
+
+                            <pre><code class="language-c++">
+// In the callbacks, rpv.type is the same value that has been registered in the config.  
+// We validate the ID but also the type to future-proof the code.
+                            
+bool rpv_write_callback(const scrutiny::RuntimePublishedValue rpv, const scrutiny::AnyType *inval){
+
+    if (rpv.id == 0x1000 && rpv.type == scrutiny::VariableType::uint8){
+        std::cout &lt;&lt;  "ID 0x1000 Written : " &lt;&lt; inval->uint8 &lt;&lt; std::endl;
+    } else if (rpv.id == 0x1001 && rpv.type == scrutiny::VariableType::sint32){
+        std::cout &lt;&lt;  "ID 0x1001 Written : " &lt;&lt; inval->sint32 &lt;&lt; std::endl;
+    } else if (rpv.id == 0x1002 && rpv.type == scrutiny::VariableType::float64){
+        std::cout &lt;&lt;  "ID 0x1002 Written : " &lt;&lt; inval->float64 &lt;&lt; std::endl;
+    } else if (rpv.id == 0x1003 && rpv.type == scrutiny::VariableType::boolean){
+        std::cout &lt;&lt;  "ID 0x1003 Written : " &lt;&lt; inval->boolean &lt;&lt; std::endl;
+    } else {
+        return false;   // failure
+    }
+    return true;    // success
+}
+
+bool rpv_read_callback(scrutiny::RuntimePublishedValue rpv, scrutiny::AnyType *outval){
+    if (rpv.id == 0x1000 && rpv.type == scrutiny::VariableType::uint8){
+        outval->uint8 = 0x55;
+    } else if (rpv.id == 0x1001 && rpv.type == scrutiny::VariableType::sint32){
+        outval->sint32 = 0x12345678;
+    } else if (rpv.id == 0x1002 && rpv.type == scrutiny::VariableType::float64){
+        outval->float64 = 3.1415926;
+    } else if (rpv.id == 0x1003 && rpv.type == scrutiny::VariableType::boolean){
+        outval->boolean = true;
+    } else {
+        return false;   // failure
+    }
+    return true;    // success
+}
+
+scrutiny::RuntimePublishedValue rpvs[] = {
+    {0x1000, scrutiny::VariableType::uint8},
+    {0x1001, scrutiny::VariableType::sint32},
+    {0x1002, scrutiny::VariableType::float64},
+    {0x1003, scrutiny::VariableType::boolean}
+};
+
+// read and/or write callback can be set to nullptr, which will deactivate the specific read or write operation.
+config.set_published_values(rpvs, sizeof(rpvs) / sizeof(rpvs[0]), rpv_read_callback, rpv_write_callback);
+                            </code></pre>
+                        </div>
+                    </article>
+
+                    <article class="article">
+                        <h2 class="article-title" id="connecting-streams">Connecting the streams</h2>
+                        <div class="article-body">
+                            <p>
+                                Getting the scrutiny-embedded library to talk to the external world is what really enable Scrutiny in your device.
+                                There are two streams of data inside the MainHandler, one going in, the other going out. As a developer, you need
+                                to move the data from Scrutiny to your physical transceiver, being a UART, SPI bus, CAN bus, IP stack or any other.
+                            </p>
+
+                            <p>
+                                Accessing <code class="language-c++">scrutiny::MainHandler::comm()</code> will return a pointer to a <code class="language-c++">CommHandler</code>.
+                                This object is responsible to manage the communication with the server. All its functions are accessible to the user, but not all are necessary.
+                                <br /> 
+                                The necessary functions are:
+                            </p>
+
+                            <dl>
+                                <dt><code class="language-c++">void CommHandler::receive_data(uint8_t *data, uint16_t len)</code></dt>
+                                <dd>Give data coming from the server to the Scrutiny embedded library</dd>
+                                <dt><code class="language-c++">uint16_t CommHandler::pop_data(uint8_t *buffer, uint16_t len)</code></dt>
+                                <dd>Reads data from the Scrutiny embedded library that must be sent to the server</dd>
+                                <dt><code class="language-c++">uint16_t CommHandler::data_to_send(void) const</code></dt>
+                                <dd>Tells how much bytes are awaiting to be sent to the server</dd>
+                            </dl>
+                            
+                            <pre><code class="language-c++">// Arduino example
+void process_scrutiny_loop(){
+    static uint32_t last_call_us = 0;
+    
+    // Compute time difference
+    uint32_t current_us = micros(); // Reads microseconds
+    uint32_t timestep_us = current_us - last_call_us;
+    
+    // Receive data
+    int16_t c = Serial.read();  // Arduino returns -1 when no data is available
+    if (c != -1){
+        uint8_t uc = static_cast&lt;uint8_t&gt;(c);
+        main_handler.comm()->receive_data(&uc, 1);  
+    }
+    
+    // Sends data
+    uint8_t buffer[16];
+    uint16_t nread = main_handler.comm()->pop_data(buffer, sizeof(buffer));  // Reads data from scrutiny lib
+    if (nread &gt; 0){
+        Serial.write(buffer, nread);    // Sends data to the serial port
+    }
+
+    main_handler.process(timestep_us * 10); // Timesteps are counted in multiple of 100ns
+    last_call_us = current_us;  
+}</code></pre>
+                            <p>
+                                The size of the data chunk read or written is not important. Bytes can come one by one or by varying packet size, Scrutiny will follow.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="article">
+                        <h2 class="article-title" id="datalogging">Datalogging</h2>
+                        <div class="article-body">
+                            <h3 id="datalogging-basics">Basics</h3>
+                            <p>
+                                Datalogging is the name of the embedded feature that allows embedded graphs. To enable datalogging in a software, a developer needs to
+                            </p>
+
+                            <ol>
+                                <li>Dedicate a buffer for datalogging storage. The bigger, the longer the acquisition</li>
+                                <li>Instantiate and execute a LoopHandler <code class="language-c++">process()</code> method in every loop (task) that can be used for sampling</li>
+                            </ol>
+
+                            <p>
+                                There are 2 types of LoopHandler : <code class="language-c++">FixedFrequencyLoopHandler</code> and <code class="language-c++">VariableFrequencyLoopHandler</code>.
+                                Both are identical apart from these two differences.
+                                <ul>
+                                    <li>
+                                        No need to pass a timestep at each call to <code class="language-c++">FixedFrequencyLoopHandler::process()</code>. It is inferred by the frequency.
+                                    </li>
+                                    <li>
+                                        <code class="language-c++">FixedFrequencyLoopHandler::process()</code> does not have to use buffer space to store the time. The server can deduce the 
+                                        time axis based on the loop frequency (Ideal time). A <code class="language-c++">VariableFrequencyLoopHandler::process()</code> will not offer the 
+                                        Ideal Time option, only Measured time will be available
+                                    </li>
+                                </ul>
+                            </p>
+                            <img class="img-fluid" src="images/diagrams/datalogging.png" />
+                            <p>
+                                The communication between the LoopHandlers and the MainHandler is thread safe, or let say <i>time-domain safe</i> since they won't necessarily run in an
+                                actual thread, but possibly in a baremetal scheduler task.
+                            </p>
+
+                            <h3 id="datalogging-configuration">Configuration</h3>
+                            <p>
+                                See the following example
+                            </p>
+                            <pre><code class="language-c++">
+#include &lt;cstdint&gt;
+#include "scrutiny.hpp"
+
+// Every pointers below will stay valid for the lifetime of the software (not on stack)
+uint8_t scrutiny_rx_buffer[64];
+uint8_t scrutiny_tx_buffer[128];
+uint8_t scrutiny_datalogging_buffer[4096];  // Allow as much as possible
+scrutiny::MainHandler scrutiny_main;
+
+// Loop name is maximum 32 chars.
+scrutiny::FixedFrequencyLoopHandler task_100hz_lh(100000); // 1e7/100 = 100000.
+scrutiny::FixedFrequencyLoopHandler task_10khz_lh(1000);  // 1e7/10e3 = 1000.
+scrutiny::VariableFrequencyLoopHandler task_idle_lh("Idle");                 // No frequency
+scrutiny::LoopHandler *loops[] = {
+    &amp;task_100hz_lh,
+    &amp;task_10khz_lh,
+    &amp;task_idle_lh
+};
+
+void main(void){
+    scrutiny::Config config;    // Can be on the stack, will be copied
+    config.display_name = "My device";  // Max 64 chars
+    config.set_buffers(
+        scrutiny_rx_buffer, sizeof(scrutiny_rx_buffer),
+        scrutiny_tx_buffer, sizeof(scrutiny_tx_buffer)
+        );
+    config.set_datalogging_buffers(scrutiny_datalogging_buffer, sizeof(scrutiny_datalogging_buffer));
+    config.set_loops(loops, sizeof(loops) / sizeof(loops[0]));
+    
+    scrutiny_main.init(&amp;config);
+    
+    run_scheduler();    // Fictive scheduler that runs the tasks below
+}
+
+void task_idle(){
+    static uint32_t last_timestamp = 0;
+    uint32_t const timestamp =  get_timestamp_100ns();
+    uint32_t const timestep = timestamp - last_timestamp;
+
+    // Connect the stream here.
+    
+    scrutiny_main.process(timestep);    // Handles server commands
+    task_idle_lh.process(timestep);     // Timestep required for Variable frequency
+
+    last_timestamp = timestamp;
+}
+
+void task_100hz(){
+    task_100hz_lh.process();    // No timestep required. Fixed frequency
+}
+
+void task_10khz(){
+    task_10khz_lh.process();    // No timestep required. Fixed frequency
+}</code></pre>
+
+                            <p>
+                                The code above will make the GUI display these sampling rates.
+                            </p>
+                            <p>
+                                <img class="img-fluid" src="images/datalogging-tasks.png" />
+                            </p>
+                            
+                            <p> 
+                                Ideal time would be available only for 100Hz and 10kHz sampling rates.
+                            </p>
+                            <p>
+                                <img class="img-fluid" src="images/datalogging-xaxis.png" />
+                            </p>
+                        </div>
+                    </article>
+
+
+                    <article class="article">
+                        <h2 class="article-title" id="postbuild-toolchain">Postbuild toolchain</h2>
+                        <div class="article-body">
+                            <p>
+                                The postbuild toolchain refers to all commands that are called after a binary is generated. 
+                                As depicted in the <a href="guide-introduction.html">introduction</a> page, there are few scrutiny tools that must
+                                be called at this level.
+                            </p>
+
+                            <h3 id="sfd-structure">The <abbr title="Scrutiny Firmware Description">SFD</abbr> file structure</h3>
+                            <p>
+                                A Scrutiny Firmware Description file is a file that contains the debugging symbols of firmware as well as some additional metadata,
+                                such as the firmware hash (called the firmware ID) used for the identification.
+                            </p>
+                            <p>
+                                An <abbr title="Scrutiny Firmware Description">SFD</abbr> is nothing more than a .zip archive with the following files inside.
+<pre>my_firmware.sfd
+├── firmwareid
+├── varmap.json
+├── alias.json
+└── metadata.json</pre>
+                            </p>
+                            <p>
+                                <ul>
+                                    <li><strong>firmwareid</strong>: Contains the firmware hash, in ASCII format</li>
+                                    <li><strong>varmap.json</strong>: Contains a simplified version of the debugging symbol mapping variables having an address and a type to a tree path</li>
+                                    <li><strong>alias.json</strong>: Contains the definition of the aliases that comes with a firmware. They are are virtual tree nodes that 
+                                        points to an actual variable or a <abbr title="Runtime Published Value">RPV</abbr></li>
+                                    <li><strong>metadata.json</strong>: Some optional metadata about the firmware including the software version, the author, generation date. This info will be displayed to the 
+                                    user upon loading of the SFD.</li>
+                                </ul>
+                            </p>
+
+                            <h3 id="generating-the-sfd">Generating the <abbr title="Scrutiny Firmware Description">SFD</abbr></h3>
+                            <p>
+                                The idea is to create an empty folder, our work directory, and generate each file one by one then zipping the archive using the scrutiny 
+                                command line.
+                            </p>
+
+                            <p>
+                                <pre><code class="language-bash">#!/bin/bash
+mkdir workdir
+scrutiny elf2varmap my_firmware.elf --output workdir
+scrutiny get-firmware-id my_firmware.elf --output workdir
+scrutiny tag-firmware-id my_firmware.elf my_firmware_tagged.elf  # --inplace can replace the output file
+scrutiny make-metadata --output workdir --project-name MyProject --version "V1.2.3" --author "ACME inc."
+scrutiny add-alias workdir --file alias1.json
+scrutiny add-alias workdir --file alias2.json
+scrutiny make-sfd workdir my_firmware_v1.2.3.sfd
+scrutiny install-sfd my_firmware_v1.2.3.sfd     # To be called on the machine hosting a server
+</code></pre>
+                            </p>
+                            <p>
+                                Let's review each of these commands and explain them
+                                <ul>
+                                    <li>
+                                        <code class="language-bash">mkdir workdir</code>
+                                        <ul>
+                                            <li>Create our work directory which will be passed to each commands</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <code class="language-bash">scrutiny get-firmware-id my_firmware.elf --output workdir</code>
+                                        <ul>
+                                            <li>Makes a 128 bits hash of the firmware (the firmware ID) and writes it in "workdir/firmwareid"</li>
+                                            <li>Omitting the <code>--output</code> option will print the firmware ID to stdout</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <code class="language-bash">scrutiny tag-firmware-id my_firmware.elf my_firmware_tagged.elf</code>
+                                        <ul>
+                                            <li>Create a new modified firmware where the firmware ID (128 bits hash) has been injected using a search and replace method</li>
+                                            <li>The binary can be tagged in place using <code class="language-bash">scrutiny tag-firmware-id my_firmware.elf --inplace</code></li>
+                                            <li>If you want to inject the firmware ID with objcopy and a dedicated section instead of a search&replace method, you can skip this command
+                                                and do the tagging yourself. You can call  <code class="language-bash">scrutiny get-firmware-id my_firmware.elf</code> to have the 
+                                                firmware ID printed to stdout
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <code class="language-bash">scrutiny make-metadata --output workdir --project-name MyProject --version "V1.2.3" --author "ACME inc."</code>
+                                        <ul>
+                                            <li>Write the metadata to "workdir/metadata.json".</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <code class="language-bash">scrutiny add-alias workdir --file alias1.json</code>
+                                        <ul>
+                                            <li>Inject the aliases contained in alias1.json and alias2.json into the work directory. File naming has no importance</li>
+                                            <li>
+                                                This command can be called multiple times and will be additive. This allows the aliases to be modular and
+                                                separated according to what feature they expose. For example, they could be: user_aliases.json, developper_aliases.json, 
+                                                hil_testing_aliases and injected conditionnal on the build configuration.
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <code class="language-bash">scrutiny make-sfd workdir my_firmware_v1.2.3.sfd</code>
+                                        <ul>
+                                            <li>Validate the content of the work folder and makes a zip archive of it named "my_firmware_v1.2.3.sfd"</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <code class="language-bash">scrutiny install-sfd my_firmware_v1.2.3.sfd</code>
+                                        <ul>
+                                            <li>
+                                                Install the <abbr title="Scrutiny Firmware Description">SFD</abbr> on a machine meant to host a server. The source file can 
+                                                be deleted afterward, a copy will be made in a local storage index by firmware ID. Upon connection to a device that identifies itself
+                                                using the firmware ID in this .sfd file, the Scrutiny server will automatically load our 
+                                                <abbr title="Scrutiny Firmware Description">SFD</abbr>.
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+
+                        </div>
+                    </article>
+
+                </div>
+			</div>
+		</div>
+	</div>
 </section>
 
-
+<!-- prettier-ignore -->
 @@include('footer.html')
 
 @@include('global-footer.html')

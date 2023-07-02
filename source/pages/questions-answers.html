@@ -1,0 +1,250 @@
+<!-- prettier-ignore -->
+@@include('global-header.html')
+
+@@include('navigation.html', {"questions-answers": "active"})
+
+@@include('page-title.html',{
+	"title" : "Questions & answers"
+	
+})
+
+<section class="section questions-answers p-0">
+    <div class="container">
+        <div class="row">
+			<div class="col-lg-12 align-self-center">
+				<div class="article-container text-lg-left">
+
+                    <article class="article">
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-debugger-or-caltool">
+                            Debugger or calibration tool?
+                        </h3>
+                        <div id="qa-debugger-or-caltool" class="article-body collapse qa-answer">
+                            <p>
+                                Somewhere in between.
+                            </p>    
+                            <p>
+                                Most developers know what a debugger is. Breakpoints, stepping and watching variables. A calibration tool is a term far less popular
+                                than a debugger. It doesn't have the same purpose although some functionalities can overlap.
+                            </p>
+                            <p>
+                                The term calibration tool is mainly known by the aerospace and automotive/racing industry. It's a software meant to send configurations to a 
+                                device and monitor its behavior with the freshly given parameters. The most common example would be a 
+                                <a href="https://en.wikipedia.org/wiki/PID_controller">PID controller</a> tuning. The P,I and D gains are tunable values. A developer will test the system 
+                                response in a situation with some given gains, check how the variables evolve over time and then adjust these gains again. It's a high level debugging process.
+                            </p>
+                            <p>
+                                These tunable parameters are often identified by a unique ID that the calibration tool knows about. Writing and reading will be done through a 
+                                communication channel (serial port, CAN bus, socket) by sending a read or write command for the given parameter ID. It's pretty much 
+                                what Scrutiny does with its RPVs (Runtime Published Values).
+                            </p>
+                            <p>
+                                What if the tunable parameters are ALL the variables? Instead of exposing them explicitly in the embedded firmware by assigning IDs, 
+                                they can be automatically discovered using the debug symbols of a binary. 
+                                <br />
+                                That's what the aerospace and automotive industry have aimed for using protocols such 
+                                as <a href="https://en.wikipedia.org/wiki/XCP_(protocol)">XCP</a> and the <a href="https://www.asam.net/standards/detail/mcd-2-mc/">A2L</a> 
+                                file format. Such tool can be very handy to monitor the execution of a program and find defects; we're approaching a debugger.
+                            </p>
+
+                            <p>
+                                Scrutiny is doing the same, using the debugging symbols to become a calibration tool on steroids. 
+                                Although it cannot be used to step or watch locals variables, these limitations can be easily worked around
+                                using embedded graphs and making variables temporarily static during the debug phase. 
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="article">
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-local-var">
+                            I only see static and global variables. What about locals?
+                        </h3>
+                        <div id="qa-local-var" class="article-body collapse qa-answer">
+                            <p>
+                                Local variables on the stack cannot be read by Scrutiny. Make them static volatile temporarily, but avoid reentrance.
+                            </p>
+
+                            <p>
+                                Because it works through instrumentation, the memory is accessed by Scrutiny only when the Scrutiny
+                                instrumentation code is executed. At that moment, the stack does not carry variables from other functions.
+                            </p>
+
+                            <p>
+                                In order to see your locals with Scrutiny, you can temporarily make them static and volatile. Making them static
+                                will put the variable outside of the stack, attributing them a fixed memory location that Scrutiny can inspect.
+                                Making the variable volatile makes sure that the compiler does not optimize the variable out.  
+                            </p>
+
+                            <p>
+                                Consider the code example below.
+                            </p>
+                            <pre><code language="c++">
+int my_func(int x) {
+    int my_var = 0;
+    if (x > 0){
+        my_var = 1
+    }
+    my_var = do_something(my_var);
+    return my_var;
+}</code></pre>
+                            <p>
+                                First, it is impossible to know the value of <code class="language-c++">my_var</code> at any point in the code. 
+                                Making the variable <code class="language-c++">static volatile</code> will let us see the value at the exit of the function only. 
+                                We can look at intermediate values by inserting additional static variables
+                            </p>
+
+                            <pre><code language="c++">
+int my_func(int x) {
+    static volatile int my_var;  // Do not initialize here
+    static volatile int debug_var; 
+    my_var = 0; // Initialization is moved in a different statement to keep the behavior of a local variable.
+    if (x > 0){
+        my_var = 1
+    } 
+    debug_var = my_var; // Catch the value of my_var for Scrutiny
+    my_var = do_something(my_var);
+    return my_var;
+}</code></pre>
+                        <p>
+                            As you can see, we now have a hook that let us know if <code class="language-c++">my_var</code> 
+                            was 0 or 1 before calling <code class="language-c++">do_something()</code>. 
+                            We can look at <code class="language-c++">my_var</code> with Scrutiny to get the output of <code class="language-c++">do_something()</code>, 
+                            and <code class="language-c++">debug_var</code> to get the value of <code class="language-c++">my_var</code> after the condition. 
+                        </p>
+                        <p>
+                            Another consideration is that the rate and the order at which these 2 variables are read is not guaranteed.
+                            It strongly depends on your communication link and the number of variables that are being watched at the same time. 
+                            To get a synchronized reading of the 2 variables, use the datalogging feature and make an embedded graph of them. 
+                            Then  you will see, for each execution loop, the value of <code class="language-c++">my_var</code> and <code class="language-c++">debug_var</code>.
+                        </p>
+                        <p>
+                            One last thing. When making your variables static, be careful to avoid reentrant function; static variables
+                            will change their behavior since each call will share the variable with the caller function. This is rarely
+                            an issue, unless you have task that can interrupt another one and both of them are using the same piece of code.
+                        </p>
+                        <div>
+                    </article>
+                    
+                    <article class="article">
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-debug">
+                            I'm having an issue with Scrutiny, how can I pinpoint the problem?
+                        </h3>
+                        <div id="qa-debug" class="article-body collapse qa-answer">
+                            <p>
+                                Most features are handled by the Python server and the server can be launched using the 
+                                Scrutiny <abbr title="Command Line Interface">CLI</abbr>. The CLI accepts a parameter 
+                                <code class="language-bash">--loglevel</code> that can make it much more verbose.
+                            </p>
+                            <p>
+                                The following line will launch a server with debug logging. <br />
+                                <code class="language-bash">scrutiny launch-server --config my_config.json --loglevel debug --logfile scrutiny.log</code>
+                            </p>
+                            <p>
+                                Note that the <code class="language-bash">--loglevel</code> option works for every commands, 
+                                including running the unit tests. Running a failing unittest with debug logging is a very effective way
+                                to find a defect.
+                            </p>
+
+                            <p>
+                                When running unit tests, error messages are hidden by default to avoid causing confusion while 
+                                running tests that are expected to return an error. The following line will run a specific test with 
+                                debug logging
+                                <br /> 
+                                <code class="language-bash">python -m scrutiny runtest --module test.server.foo.bar.baz --loglevel debug</code>
+                            </p>
+
+                            <p>
+                                Notice how we did not use the <code class="language-bash">scrutiny</code> command to run the tests, but
+                                <code class="language-bash">python -m scrutiny</code>.  That's because when you install scrutiny,
+                                the unit tests are not installed with the release package. Unit tests are available only in a development environment
+                            </p>
+                        </div>
+                    </article>
+                    
+                    <article class="article">
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-custom-protocol">
+                            Why do you use a custom protocol instead of something like XCP?
+                        </h3>
+                        <div id="qa-custom-protocol" class="article-body collapse qa-answer">
+                            <p>
+                                Nobody would really benefit from that.
+                            </p>
+
+                            <p>
+                                Supporting an already existing protocol would only be useful to make a device, previously compatible with a paid tool like Vector Canape, 
+                                compatible with the Scrutiny UI. 
+                                When Scrutiny has been developed, the goal was to bring the CalTool/ instrumentation debugging 
+                                in the sector where it was not common to do so. Industry that requires protocol compatibility are already deeply involved with 
+                                paid tools, they can keep them. Newcomers can decide to go 100% Scrutiny or not.
+                            </p>
+
+                            <p>
+                                Also, supporting compatibility with a standard is time consuming and development time is not the main resource
+                                in a voluntary project. It would simply be an effort put at the wrong place.
+                            </p>
+
+                            <p>
+                                Finally, having tailored protocol, embedded and web API, is very nice for development as all the commands are meaningful and perfectly
+                                adapted to its task. Once the protocol is understood, development is much easier, faster and cleaner.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="article">
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-eeprom" >
+                            Can I use Scrutiny for <abbr title="Non-Volatile Memory">NVM</abbr> configuration?
+                        </h3>
+                        <div id="qa-eeprom" class="article-body collapse qa-answer">
+                            <p>
+                                Yes, but you need to add a hook in your code
+                            </p>
+
+                            <p>
+                                <pre><code class="language-c++">static volatile bool save_eeprom=false;
+static volatile EEPROM_t eeprom_input;
+
+if (save_eeprom){
+    my_eeprom_driver.write_config(&eeprom_input, sizeof(eeprom_input));
+    save_eeprom = false;
+}</code></pre>
+                            </p>
+
+                            <p>
+                                In the example above, the configuration code will never be executed in normal conditions. The <code class="language-c++">eeprom_input</code>
+                                and <code class="language-c++">save_eeprom</code> are now accessible by the client. They can both be written manually or through the SDK. 
+                                
+                            </p>
+
+                            <p>
+                                For convenience, it is even possible to add an alias to abstract this variable so that these items appears at a friendly location, 
+                                for instance /EEPROM/Save &amp; /EEPROM/Content. This feature can be particularly handy if the person doing the configuration is not the same
+                                as the one writing the software (engineering vs production team). It also guarantees that the EEPROM hooks always show at the same location in the 
+                                variable tree, regardless of the software version, avoiding backward compatibility issues in the configuration scripts.
+                            </p>
+                            <p>
+                                Note that the SDK also has the capability of writing memory chunk directly, this can be useful for automation.
+                            </p>
+
+                        </div>
+                    </article>
+                    
+                    <article class="article">
+                        <h3 class="article-title qa-title" data-toggle="collapse" href="#qa-dyn-alloc" >
+                            Does scrutiny-embedded uses dynamic allocation?
+                        </h3>
+                        <div id="qa-dyn-alloc" class="article-body collapse qa-answer">
+                            <p>
+                                No, static allocation only
+                            </p>
+                        </div>
+                    </article>
+
+				</div>
+			</div>
+        </div>
+    </div>
+</section>
+
+<!-- prettier-ignore -->
+@@include('footer.html')
+
+@@include('global-footer.html')
