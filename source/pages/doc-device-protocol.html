@@ -32,13 +32,13 @@
                         <div class="article-body">
                             <p>
                                 This article details the inner workings of the communication protocol used between the Scrutiny server and a Scrutiny device.
-                                A user will never have to know anything about this protocol. The main purpose of this page is to provide some developper documentation
+                                A user will never have to know anything about this protocol. The main purpose of this page is to provide some developer documentation
                                 to anybody who wants to modify the software or debug their communication.
                             </p>
 
                             <p>
                                 The communication between the server and the device is done through a custom binary protocol.
-                                The protocol is half-duplex and works in a request/response scheme. It is partially insipired by the 
+                                The protocol is half-duplex and works in a request/response scheme. It is partially inspired by the 
                                 <abbr title="Unified Diagnostic Service">UDS</abbr> protocol used in the automotive industry defined by ISO-14229.
                             </p>
 
@@ -53,7 +53,7 @@
                             <p>
                                 Before sending a request to a device, the server needs to establish a session with it with a "Connect" request. When no connection 
                                 is established, the device will only answer to these 2 request <a class="scrollTo" href="#article-proto-CommControl-Discover" onclick="$('#proto-CommControl-Discover').collapse('show')">CommControl-Discover</a> 
-                                and to <a class="scrollTo" href="#article-proto-CommControl-Connect" onclick="$('#proto-CommControl-Connect').collapse('show')">CommControl-Connect</a>. All other request will be silently ignored.
+                                and to <a class="scrollTo" href="#article-proto-CommControl-Connect" onclick="$('#proto-CommControl-Connect').collapse('show')">CommControl-Connect</a>. All other requests will be silently ignored.
                             </p>
 
                             <p>
@@ -97,6 +97,26 @@
                                 <li><strong>Data Length</strong>: Number of bytes in the data field. Maximum value: 65520 bytes </li>
                                 <li><strong>CRC32</strong>: A <abbr title="Cyclic Redundency Check">CRC</abbr> code that validates the frame integrity</li>
                             </ul>
+                            
+                            <p><h3>CRC</h3></p>
+                            <p>
+                                The CRC algorithm used is a standard CRC32. A C++ implementation would look like this
+                            </p>
+<pre><code class="language-c++">uint32_t crc32(const uint8_t *data, const uint32_t size, const uint32_t start_value){
+    uint32_t crc = ~start_value;
+    for (uint32_t i = 0; i &lt; size; i++){
+        uint8_t byte = data[i];
+        for (unsigned int j = 0; j &lt; 8; j++){
+            const unsigned int lsb = (byte ^ crc) & 1;
+            crc >>= 1;
+            if (lsb){
+                crc ^= 0xEDB88320;
+            }
+            byte >>= 1;
+        }
+    }
+    return ~crc;
+} </code></pre>
 
                             <p><h3>Data types</h3></p>
                             <p id="table-datatype">
@@ -771,7 +791,7 @@
                                             </td>
                                             <td>&lt;timestep&gt;</td>
                                             <td>4</td>
-                                            <td>Timestep of the fixed freq loop, in multiple of 100ns</td>
+                                            <td>Timestep of the fixed frequency loop, in multiple of 100ns</td>
                                         </tr>
                                         <tr>
                                             <td>
@@ -1053,13 +1073,13 @@
                                             <td>0</td>
                                             <td>&lt;max_rx_data_size&gt;</td>
                                             <td>2</td>
-                                            <td>Maximum size that a request data payload can have. Tied to the internal comm buffer size. </td>
+                                            <td>Maximum size that a request data payload can have. Tied to the internal communication buffer size. </td>
                                         </tr>
                                         <tr>
                                             <td>2</td>
                                             <td>&lt;max_tx_data_size&gt;</td>
                                             <td>2</td>
-                                            <td>Maximum size that a response data payload can have. Tied to the internal comm buffer size. </td>
+                                            <td>Maximum size that a response data payload can have. Tied to the internal communication buffer size. </td>
                                         </tr>
                                         <tr>
                                             <td>4</td>
@@ -1715,7 +1735,7 @@
                         <div id="proto-MemoryControl-ReadRPV" class="article-body collapse subfn-content">
                             <p>
                                 Reads a Runtime Published Value by providing its 16bits ID only. 
-                                The value type is expected to be known by both sides. The requestor can inquire the device with the list of its RPV 
+                                The value type is expected to be known by both sides. The caller can inquire the device with the list of its RPV 
                                 using the GetInfo commands
                             </p>    
                             <p>
@@ -1990,9 +2010,9 @@
                         </h3>
                         <div id="proto-UserCommand-Any" class="article-body collapse subfn-content">
                             <p>
-                                Calls a user defined callback in the device.
+                                Calls a user-defined callback in the device.
                                 A <a class="scrollTo" href="#article-proto-GetInfo-GetSupportedFeatures" onclick="$('#proto-GetInfo-GetSupportedFeatures').collapse('show')">GetSupportedFeatures</a>
-                                request can be used to know if the device supports this command. A device will support this command if the firmware developper defined a callback
+                                request can be used to know if the device supports this command. A device will support this command if the firmware developer defined a callback
                                 by setting <code class="language-c++">config.user_command_callback</code>
                             </p>    
                             <p>
@@ -2171,15 +2191,15 @@
                                             <td>
                                                 Type of condition to use for the trigger 
                                                 <ul>
-                                                    <li>0 : AlwaysTrue. 0 Operands</li>
-                                                    <li>1 : Equal. 2 operands</li>
-                                                    <li>2 : NotEqual. 2 operands</li>
-                                                    <li>3 : LessThan. 2 operands</li>
-                                                    <li>4 : LessOrEqualThan. 2 operands</li>
-                                                    <li>5 : GreaterThan. 2 operands</li>
-                                                    <li>6 : GreaterOrEqualThan. 2 operands</li>
-                                                    <li>7 : ChangeMoreThan. 2 operands</li>
-                                                    <li>8 : IsWithin. 3 operands</li>
+                                                    <li><strong>AlwaysTrue(0)</strong>: 0 Operands</li>
+                                                    <li><strong>Equal(1)</strong>: 2 operands</li>
+                                                    <li><strong>NotEqual(2)</strong>: 2 operands</li>
+                                                    <li><strong>LessThan(3)</strong>: 2 operands</li>
+                                                    <li><strong>LessOrEqualThan(4)</strong>: 2 operands</li>
+                                                    <li><strong>GreaterThan(5)</strong>: 2 operands</li>
+                                                    <li><strong>GreaterOrEqualThan(6)</strong>: 2 operands</li>
+                                                    <li><strong>ChangeMoreThan(7)</strong>: 2 operands</li>
+                                                    <li><strong>IsWithin(8)</strong>: 3 operands</li>
                                                 </ul>
                                             </td>
                                         </tr>
@@ -2206,10 +2226,10 @@
                                             <td>1</td>
                                             <td>Type of operand for operand #0. 
                                                 <ul>
-                                                    <li>0 : Literal</li>
-                                                    <li>1 : Variable</li>
-                                                    <li>2 : Variable Bitfield</li>
-                                                    <li>3 : <abbr title="Runtime Published Value">RPV</abbr></li>
+                                                    <li><strong>Literal(0)</strong></li>
+                                                    <li><strong>Variable(1)</strong></li>
+                                                    <li><strong>Variable Bitfield(2)</strong></li>
+                                                    <li><strong><abbr title="Runtime Published Value">RPV</abbr>(3)</strong></li>
                                                 </ul>
                                             </td>
                                         </tr>
@@ -2225,10 +2245,10 @@
                                             <td>1</td>
                                             <td>Type of operand for operand #N. 
                                                 <ul>
-                                                    <li>0 : Literal</li>
-                                                    <li>1 : Variable</li>
-                                                    <li>2 : Bitfield</li>
-                                                    <li>3 : <abbr title="Runtime Published Value">RPV</abbr></li>
+                                                    <li><strong>Literal(0)</strong></li>
+                                                    <li><strong>Variable(1)</strong></li>
+                                                    <li><strong>Variable Bitfield(2)</strong></li>
+                                                    <li><strong><abbr title="Runtime Published Value">RPV</abbr>(3)</strong></li>
                                                 </ul>
                                             </td>
                                         </tr>
@@ -2251,9 +2271,9 @@
                                             <td>1</td>
                                             <td>Type of the signal #0. 
                                                 <ul>
-                                                    <li>0 : Memory</li>
-                                                    <li>1 : <abbr title="Runtime Published Value">RPV</abbr></li>
-                                                    <li>2 : Time</li>
+                                                    <li><strong>Memory(0)</strong></li>
+                                                    <li><strong><abbr title="Runtime Published Value">RPV</abbr>(1)</strong></li>
+                                                    <li><strong>Time(2)</strong></li>
                                                 </ul>
                                             </td>
                                         </tr>
@@ -2269,9 +2289,9 @@
                                             <td>1</td>
                                             <td>Type of the signal #N. 
                                                 <ul>
-                                                    <li>0 : Memory</li>
-                                                    <li>1 : <abbr title="Runtime Published Value">RPV</abbr></li>
-                                                    <li>2 : Time</li>
+                                                    <li><strong>Memory(0)</strong></li>
+                                                    <li><strong><abbr title="Runtime Published Value">RPV</abbr>(1)</strong></li>
+                                                    <li><strong>Time(2)</strong></li>
                                                 </ul>
                                             </td>
                                         </tr>
@@ -2432,6 +2452,414 @@
                             </p>
                         </div>
                     </article>   
+
+                    <article id="article-proto-DatalogControl-ArmTrigger" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-DatalogControl-ArmTrigger">
+                            ArmTrigger  [0x3]
+                        </h3>
+                        <div id="proto-DatalogControl-ArmTrigger" class="article-body collapse subfn-content">
+                            <p>
+                                Make the datalogger wait for the trigger condition to finish its acquisition
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                - Empty 
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">0503000014dc9177</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8503000000ad916711</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+                    <article id="article-proto-DatalogControl-DisarmTrigger" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-DatalogControl-DisarmTrigger">
+                            DisarmTrigger  [0x4]
+                        </h3>
+                        <div id="proto-DatalogControl-DisarmTrigger" class="article-body collapse subfn-content">
+                            <p>
+                                Stop the datalogger from waiting for the trigger condition
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                - Empty 
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+
+
+                                    <li>
+                                        Request: <span class="payload">05040000119387f2</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">850400000030465fa8</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>  
+
+
+                    <article id="article-proto-DatalogControl-GetStatus" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-DatalogControl-GetStatus">
+                            GetStatus  [0x5]
+                        </h3>
+                        <div id="proto-DatalogControl-GetStatus" class="article-body collapse subfn-content">
+                            <p>
+                                Request the device for the state of the datalogger
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;state&gt;</td>
+                                            <td>4</td>
+                                            <td>
+                                                State of the datalogger
+                                                <ul>
+                                                    <li><strong>Idle(0)</strong>:  Doing nothing, waiting on a configuration</li>
+                                                    <li><strong>Configured(1)</strong>:  Configuration loaded, logging is happening, but trigger is not monitored</li>
+                                                    <li><strong>Armed(2)</strong>:  Logging in progress, waiting for a trigger condition</li>
+                                                    <li><strong>Triggered(3)</strong>:  Trigger event raised, circular logging will end as soon as the trigger is correctly positioned</li>
+                                                    <li><strong>Acquisition_completed(4)</strong>:  Acquisition is ready for download</li>
+                                                    <li><strong>Error(5)</strong>:  Internal error. Requires a reset using the 
+                                                        <a class="scrollTo" href="#article-proto-DatalogControl-ResetDatalogger" onclick="$('#proto-DatalogControl-ResetDatalogger').collapse('show')">
+                                                            ResetDatalogger
+                                                        </a> command
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>&lt;remaining_bytes&gt;</td>
+                                            <td>4</td>
+                                            <td>
+                                                Total number of bytes that needs to be acquired after the trigger event to end the acquisition. 
+                                                Value will be 0 if the state is not "Triggered".
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>5</td>
+                                            <td>&lt;write_counter&gt;</td>
+                                            <td>4</td>
+                                            <td>
+                                                Number of bytes acquired since the trigger event was raised. Value will be 0 if the state is not "Triggered".
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">050500001051edc5</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8505000009<span class="data">03000003e8000002ee</span>e5680f19</span class="payload">
+                                        <ul>
+                                            <li>State: Triggered (3)</li>
+                                            <li>remaining_bytes: 1000 (0x000003e8)</li>
+                                            <li>write_counter: 750 (0x000002ee)</li>
+                                        </ul>
+                                    </li>
+                                    Acquisition completion is 75% (750/1000)
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+                    <article id="article-proto-DatalogControl-GetAcquisitionMetadata" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-DatalogControl-GetAcquisitionMetadata">
+                            GetAcquisitionMetadata  [0x6]
+                        </h3>
+                        <div id="proto-DatalogControl-GetAcquisitionMetadata" class="article-body collapse subfn-content">
+                            <p>
+                                Once an acquisition is ready, request the device for the acquisition metadata
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;acquisition_id&gt;</td>
+                                            <td>2</td>
+                                            <td>
+                                                An ID assigned to the acquisition by the device. Will also be given with each chunk of data for matching validation
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;config_id&gt;</td>
+                                            <td>2</td>
+                                            <td>An echo of the configuration ID given with the 
+                                                <a class="scrollTo" href="#article-proto-DatalogControl-ConfigureDatalog" onclick="$('#proto-DatalogControl-ConfigureDatalog').collapse('show')">
+                                                ConfigureDatalog
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>&lt;nb_points&gt;</td>
+                                            <td>4</td>
+                                            <td>Number of sample points in the acquisition</td>
+                                        </tr>
+                                        <tr>
+                                            <td>8</td>
+                                            <td>&lt;datasize&gt;</td>
+                                            <td>4</td>
+                                            <td>Size of the acquisition data in bytes</td>
+                                        </tr>
+                                        <tr>
+                                            <td>12</td>
+                                            <td>&lt;points_after_trigger&gt;</td>
+                                            <td>4</td>
+                                            <td>Number of samples located after the trigger event</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">050600001217539c</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">8506000010<span class="data">11223344000003e800001B58000000FA</span>f9aa9457</span class="payload">
+                                        <ul>
+                                            <li>acquisition_id: 0x1122</li>
+                                            <li>config_id: 0x3344</li>
+                                            <li>nb_points: 1000 (0x000003e8)</li>
+                                            <li>datasize: 7000 (0x00001B58)</li>
+                                            <li>points_after_trigger: 250 (0x000000FA)</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+
+                    <article id="article-proto-DatalogControl-ReadAcquisition" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-DatalogControl-ReadAcquisition">
+                            ReadAcquisition  [0x7]
+                        </h3>
+                        <div id="proto-DatalogControl-ReadAcquisition" class="article-body collapse subfn-content">
+                            <p>
+                                Once an acquisition is ready, request the device to return the acquisition data.
+                                This request must be sent multiple time until all the data chunk is read.
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                            <th>Size (B)</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>&lt;finished&gt;</td>
+                                            <td>1</td>
+                                            <td>
+                                                Boolean flag. Set to 1 if that chunk of data is the last one.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>&lt;rolling_counter&gt;</td>
+                                            <td>1</td>
+                                            <td>
+                                                8 bits rolling counter that will increase after each request. Used to make sure that the data
+                                                received is changing and not a repetition of a previous reading.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>&lt;acquisition_id&gt;</td>
+                                            <td>2</td>
+                                            <td>
+                                                Same value gotten in the 
+                                                <a class="scrollTo" href="#article-proto-DatalogControl-GetAcquisitionMetadata" onclick="$('#proto-DatalogControl-GetAcquisitionMetadata').collapse('show')">
+                                                    GetAcquisitionMetadata
+                                                </a> for validation
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>&lt;data&gt;</td>
+                                            <td>
+                                                <ul>
+                                                    <li>finished=0: &lt;payload_length&gt;-4</li>
+                                                    <li>finished=1: &lt;payload_length&gt;-8</li>
+                                                </ul>
+                                            </td>
+                                            <td>
+                                                Partial chunk of data
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>4+&lt;data_length&gt;</td>
+                                            <td>&lt;crc&gt;</td>
+                                            <td>4</td>
+                                            <td>
+                                                CRC32 of the complete acquisition dataset. Only present if &lt;finished&gt;=1
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">0507000013d539ab</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response 1: <span class="payload">8507000010<span class="data">00123456112233445566778899aabbcc</span>55d2dcac</span class="payload">
+                                        <ul>
+                                            <li>finished: 0</li>
+                                            <li>rolling_counter: 0x12</li>
+                                            <li>acquisition_id: 0x3456</li>
+                                            <li>data: 0x112233445566778899aabbcc</li>
+                                            <li>crc: N/A</li>
+                                        </ul>
+                                    </li>
+
+                                    <li>
+                                        Response 2: <span class="payload">8507000010<span class="data">011234561122334455667788ffeeddcc</span>a1c30cdf</span class="payload">
+                                        <ul>
+                                            <li>finished: 1</li>
+                                            <li>rolling_counter: 0x12</li>
+                                            <li>acquisition_id: 0x3456</li>
+                                            <li>data: 0x1122334455667788</li>
+                                            <li>crc: 0xffeeddcc</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
+
+
+                    <article id="article-proto-DatalogControl-ResetDatalogger" class="article subfn-article">
+                        <h3 class="article-title subfn-heading" data-toggle="collapse" href="#proto-DatalogControl-ResetDatalogger">
+                            ResetDatalogger  [0x8]
+                        </h3>
+                        <div id="proto-DatalogControl-ResetDatalogger" class="article-body collapse subfn-content">
+                            <p>
+                                Put back the datalogger in standby state where it'll wait for a new configuration through 
+                                <a class="scrollTo" href="#article-proto-DatalogControl-GetAcquisitionMetadata" onclick="$('#proto-DatalogControl-GetAcquisitionMetadata').collapse('show')">
+                                ConfigureDatalog
+                                </a>
+                            </p>    
+                            <p>
+                                <h4>Request Data</h4>
+                                - Empty
+                            </p>
+                            <p>
+                                <h4>Response Data</h4>
+                                - Empty
+                            </p>
+
+                            <p>
+                                <h4>Example</h4>
+                                <ul>
+                                    <li>
+                                        Request: <span class="payload">0508000018897e96</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Response: <span class="payload">85080000007a90e010</span class="payload">
+                                        <ul>
+                                            <li>Empty data</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </article>
 
                 </div>
             </div>

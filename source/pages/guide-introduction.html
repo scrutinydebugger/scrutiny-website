@@ -82,7 +82,7 @@
                                 </code>
                             </pre>
                             <p>
-                                It may appear that calling <code class="language-c++">some_function()</code> will never print anything, right? Unless of course, the device memory is being tampered with... 
+                                It may appear that calling <code class="language-c++">some_function()</code> will never print anything, right? Unless, of course, the device memory is being tampered with... 
                                 That's exactly what Scrutiny will do. Here's what this will look like in the GUI 
                             </p>
                             <p class="text-center">
@@ -160,13 +160,13 @@
 
                                 <dt>Python server</dt>
                                 <dd>
-                                    A server that communicate with the debugged device and exposes all debugging information about the device through a multi-client websocket API. 
+                                    A server that communicates with the debugged device and exposes all debugging information about the device through a multi-client websocket API. 
                                     This server is a powerful extension of a limited resources device.
                                 </dd>
 
                                 <dt>Client (GUI or SDK)</dt>
                                 <dd>
-                                    A software that communicate with the server through a websocket. It can subscribe to variables, trigger graphs, request the device status, write the memory, and more.
+                                    A software that communicates with the server through a websocket. It can subscribe to variables, trigger graphs, request the device status, write the memory, and more.
                                 </dd>
                             </dl>
                             <p>
@@ -194,7 +194,7 @@
                                     <dt>Client graph</dt>
                                     <dd>
                                         <p>
-                                            This graph is made by the client. Each time a value update is broadcasted by the server, the sample will be logged. The update
+                                            This graph is made by the client. Each time a value update is broadcast by the server, the sample will be logged. The update
                                             rate of the server is defined by the device communication link bandwidth. The faster the link, the faster the server can poll the device for 
                                             memory dump and the faster the values are updated.
                                         </p>
@@ -206,12 +206,12 @@
                                     <dt>Embedded graph</dt>
                                     <dd>
                                         <p>
-                                            The embedded graph works differently. As the name suggest, the embedded device will take care of logging the variables. This feature is 
-                                            specially useful to catch a fast event or follow the evolution of internal state variable, like a state machine
+                                            The embedded graph works differently. As the name suggests, the embedded device will take care of logging the variables. This feature is 
+                                            especially useful to catch a fast event or follow the evolution of internal state variable, like a state machine
                                         </p>
                                         <p>
                                             A buffer dedicated to datalogging must be given to scrutiny-embedded. When a graph request is received, the device will start filling this
-                                            buffer like a circular one until the graph trigger condition is met. It will then continue to log until the event is a the requested position 
+                                            buffer like a circular one until the graph trigger condition is met. It will then continue to log until the event is at the requested position 
                                             in the buffer, allowing to see before or after the event.
                                         </p>
                                         <p>

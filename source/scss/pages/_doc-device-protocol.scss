@@ -14,9 +14,11 @@
 		.subfn-article{
 			border:1px solid $quote-color;
 			margin-top:10px;
+			padding-bottom: 0 !important; // Override the default padding because these articles can collapse. 
 
 			.subfn-content{
 				padding: 10px;
+				
 				.payload {
 					text-transform: uppercase;
 					font-size:14px;
