@@ -1,6 +1,7 @@
 .doc-device-protocol {
 	.article-container {
 		@extend .content-container;
+		@extend .content-with-menu;
 		.article-separator{
 			border-bottom:1px solid $border-color;
 			margin-bottom:25px;

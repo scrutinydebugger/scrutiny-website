@@ -1,6 +1,7 @@
 .guide {
 	.article-container {
 		@extend .content-container;
+		@extend .content-with-menu;
 		.article {
 			@extend .article-content;
 		}

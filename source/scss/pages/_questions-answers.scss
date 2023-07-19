@@ -1,6 +1,7 @@
 .questions-answers {
 	.article-container {
 		@extend .content-container;
+		@extend .content-no-menu;
 		.article {
 			@extend .article-content;
 			
