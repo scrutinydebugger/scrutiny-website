@@ -15,15 +15,27 @@
 				<div class="article-container text-lg-left">
                     <article class="article">
                         <h3 class="article-title">
-                            Not ready yet, be patient
+                            Command line download
                         </h3>
                         <div class="article-body">
                             <p>
-                                Scrutiny is still under development. There is no release candidate to this day (June 2023), but it will come.
+                                As of today (2024), there is only a command line release available (no GUI included). 
                             </p>
-                    
                             <p>
-                                If you really want to get Scrutiny working before the installer is published, you can fetch the code from Gihub and contact us by email.
+                                This release includes the Python <abbr title="Software Development Kit">SDK</abbr> and the scrutiny
+                                 <abbr title="Command Line Interface">CLI</abbr>, featuring
+                                <ul>
+                                    <li>The Scrutiny server </li>
+                                    <li>The postbuild developmeny toolchain</li>
+                                </ul>
+                            </p>
+                            
+                            <p>The CLI tools can be downloaded with pip.</p>
+                            <pre><code language="bash">pip install scrutinydebugger</code></pre>
+
+                            <p>
+                                The long term plan is to provide an installer that will also deploy GUI able to automatically launch a local server, making the 
+                                Scrutiny more easily available to non-developpers. Until then, the CLI will be the way to go.
                             </p>
                         </div>
                     </article>

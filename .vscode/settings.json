@@ -13,5 +13,6 @@
     ],
     "typescript.suggest.autoImports": false,
     "javascript.suggest.autoImports": false,
-    "cSpell.enabled": false
+    "cSpell.enabled": false,
+    "liveServer.settings.port": 5501
 }
