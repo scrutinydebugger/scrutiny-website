@@ -27,14 +27,13 @@
                         <h2 class="article-title" id="in-a-nutshell">In a nutshell</h2>
                         <div class="article-body">
                             <p>
-                                When come to debugging an embedded application, getting a working debugging environment is often painful. 
-                                Most commonly, JTAG are proprietary and costly or free and hard to use (or even simply bad). If we make abstraction of the cost, 
-                                professional JTAG software can be very complex and tedious to automate.
+                                When it comes to debugging an embedded application, establishing a functional debugging environment can be challenging. 
+                                More often than not, JTAG tools are either proprietary and expensive, or free but difficult to use, and sometimes even ineffective. 
+                                Ignoring the cost factor, professional JTAG software can be overly complex and cumbersome to automate.
                             </p>
                             <p>
-                                These problems often lead hobbyists or smaller company developers to aim for a working 
-                                console output and do most of their work using dumb "printf" debug. 
-                                Scrutiny is a reasonable alternative for efficient debugging and tuning of an embedded application.
+                                These issues frequently lead developers from smaller companies or hobbyists to rely on a working console output and resort to basic ‘printf’ debugging. 
+                                Scrutiny presents a viable alternative for efficient debugging and tuning of an embedded application.
                             </p>
 
                             <div class="text-center">
@@ -42,19 +41,18 @@
                             </div>
 
                             <p>
-                                Also, some applications are critical and cannot be stopped or even access through JTAG while in operation such as a drone controller. 
-                                As it is flying, the debugging process would need to not interfere with the application as it could lead to physical damages of the 
-                                hardware and obviously, hooking a wired JTAG is hardly an option during flight.
-                            </p>
-
-                            <p>
-                                So how do we handle that? Scrutiny does not interfere with the original application, because it works through instrumentation. Breakpoints are 
-                                not possible, and memory accesses are done synchronously within the embedded application. The developer controls when Scrutiny instrumentation is executed,
-                                and chooses its execution priority. Memory regions can be marked as forbidden or read-only, to avoid tampering with any critical memory section.
+                                Certain applications, such as a drone controller, are critical and cannot be halted or accessed via JTAG while in operation. 
+                                As the drone is in flight, the debugging process must not interfere with the application to prevent potential hardware damage. 
+                                Obviously, connecting a wired JTAG is hardly feasible during flight.
                             </p>
                             <p>
-                                Finally, Scrutiny works through the communication channel already available on your hardware. So if you have Wifi, or wireless 
-                                serial port, then Scrutiny will be able to use that channel to talk to its debug server. No need for additional proprietary hardware.
+                                So how do we handle this? Scrutiny does not interfere with the original application, because it works through instrumentation. Breakpoints are 
+                                not possible, and memory accesses occur synchronously within the embedded application. The developer dictates when Scrutiny instrumentation's is executed,
+                                and sets its execution priority. Memory regions can be marked as forbidden or read-only, to avoid tampering with any critical memory section.
+                            </p>
+                            <p>
+                                Lastly, Scrutiny operates through the communication channel already present on your hardware. Therefore, if you have Wifi, or a wireless 
+                                serial port, Scrutiny can utilize that channel to communicate with its debug server. There's no need for additional proprietary hardware.
                             </p>
                         </div>
                     </article>
@@ -82,7 +80,7 @@
                                 </code>
                             </pre>
                             <p>
-                                It may appear that calling <code class="language-c++">some_function()</code> will never print anything, right? Unless, of course, the device memory is being tampered with... 
+                                It may seem that invoking <code class="language-c++">some_function()</code> will never print anything, right? Unless, of course, the device memory is being tampered with... 
                                 That's exactly what Scrutiny will do. Here's what this will look like in the GUI 
                             </p>
                             <p class="text-center">
@@ -125,7 +123,8 @@
                                         <td class="align-middle">Alias</td>
                                         <td class="align-middle">
                                             An abstract variable that can point to an actual variable or a <abbr title="Runtime Published Value">RPV</abbr>. <br />
-                                            Aliases are useful to guarantee a fixed interface across different versions of a same firmware when a user (a human or a script) expects a variable to exist.
+                                            Aliases are useful to maintain a consistent interface across different firmware versions of a same firmware when a user 
+                                            (either a human or a script) expects a variable to exist.
                                             <br />
                                             For automatic testing, aliases are essentials.
                                         </td>
@@ -134,11 +133,11 @@
                             </table>
 
                             <p>
-                                How did Scrutiny found the variables of our example above? As mentioned, it uses the compiler debugging symbols, meaning that the build toolchain
-                                must be altered a bit to add the Scrutiny stage after linking.
+                                How did Scrutiny found the variables in our previous above? As mentioned, it utilizes the debugging symbols from the compiler, 
+                                which means the build toolchain needs to be slightly modified to include the Scrutiny stage after linking.
                                 <br />
-                                Note that an application must be compiled with the debugging symbols (generally, the with the -g option). 
-                                Once the Scrutiny toolchain has produced its artifacts,  the debugging symbols can be dropped from the final 
+                                Note that an application must be compiled with debugging symbols (generally, the with the -g option). 
+                                Once the Scrutiny toolchain has produced its artifacts, the debugging symbols can be removed from the final 
                                 binary with a command such as <code class="bash">objcopy --strip-debug firmware.elf</code>
                             </p>
                             <p class="text-center">
@@ -154,13 +153,13 @@
                             <dl>
                                 <dt>Embedded library</dt>
                                 <dd>
-                                    A C++11 library that must be called by the user firmware periodically. 
-                                    This library has 2 streams of data (in and out) that must be sent to the external world through a hardware channel (serial port, CAN bus, ethernet socket, etc.)
+                                    A C++11 library that must be invoked by the user's firmware periodically. 
+                                    This library has 2 streams of data (in and out) that must be connected to the external world via a hardware channel such as serial port, CAN bus, IP socket, etc.
                                 </dd>
 
                                 <dt>Python server</dt>
                                 <dd>
-                                    A server that communicates with the debugged device and exposes all debugging information about the device through a multi-client websocket API. 
+                                    A server that communicates with the device being debugged. It exposes all debugging information about the device through a multi-client websocket API. 
                                     This server is a powerful extension of a limited resources device.
                                 </dd>
 
@@ -170,15 +169,16 @@
                                 </dd>
                             </dl>
                             <p>
-                                When a server connects to a device, a handshake phase happens. During that handshake, the device will share its unique identifier generated at build time and also 
-                                its configuration.
-                                The unique identifier will be used to load a Scrutiny Firmware Description (SFD) file from a local database. 
-                                The configuration is used to instruct the server on the device capabilities such as: Protocol version, buffer sizes, maximum bandwidth, enabled features, etc. 
+                                When a server connects to a device, a handshake phase is initiated. During this phase, the device shares its unique identifier generated at the time of build, 
+                                along with its configuration.
+                                The unique identifier is used to load a Scrutiny Firmware Description (SFD) file from a database local to the server. 
+                                The configuration provides the server with information about the device's capabilities such as: Protocol version, buffer sizes, maximum bandwidth, enabled features, etc. 
                             </p>
                             
                             <p>
-                                A <abbr title="Scrutiny Firmware Description">SFD</abbr> is a file generated during the build of the embedded firmware. 
-                                It contains the debugging symbols, the firmware unique ID (a hash), the aliases definition (more on that later) and additional metadata (author, version, build date and so on)
+                                A <abbr title="Scrutiny Firmware Description">SFD</abbr> is a file generated during the build process of the embedded firmware. 
+                                It contains the debugging symbols, the firmware unique ID (a hash), the aliases definition (which we will discuss later) and 
+                                additional metadata such as the author's name, version number, build date, and so forth
                             </p>
                             <img class="img-fluid" src="images/diagrams/global_achitecture.png" alt="Architecture diagram">
                         </div>
@@ -194,13 +194,14 @@
                                     <dt>Client graph</dt>
                                     <dd>
                                         <p>
-                                            This graph is made by the client. Each time a value update is broadcast by the server, the sample will be logged. The update
-                                            rate of the server is defined by the device communication link bandwidth. The faster the link, the faster the server can poll the device for 
-                                            memory dump and the faster the values are updated.
+                                            This graph is generated by the client. Each time the server broadcasts a value update, the sample is logged. The update
+                                            rate of the server is determined by the bandwidth of the device communication link. The faster the link, the quicker the 
+                                            server can poll the device for a memory dump and the quicker the values are updated.
                                         </p>
                                         <p>
-                                        This type of graph can make long acquisition (minutes, hours, even days). However, the sampling rate is dictated by the bandwidth of 
-                                        the device communication link, meaning that it won't be stable and decrease with number of element being watched. Fast event can be missed. 
+                                            This type of graph can capture long acquisitions (ranging from minutes to hours, and even days). 
+                                            However, the sampling rate is dictated by the bandwidth of  the device communication link, meaning that it won't be stable and 
+                                            decrease with the number of element being watched. Fast event may be missed. 
                                         </p>
                                     </dd>
                                     <dt>Embedded graph</dt>
