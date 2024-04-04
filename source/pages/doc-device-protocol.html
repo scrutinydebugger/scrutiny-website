@@ -31,29 +31,30 @@
                         </h2>
                         <div class="article-body">
                             <p>
-                                This article details the inner workings of the communication protocol used between the Scrutiny server and a Scrutiny device.
-                                A user will never have to know anything about this protocol. The main purpose of this page is to provide some developer documentation
-                                to anybody who wants to modify the software or debug their communication.
+                                This article provides an in-depth explanation of the communication protocol used between the Scrutiny server and a Scrutiny device. 
+                                This protocol is not something a user needs to understand; instead, this information is intended to serve as developer documentation for 
+                                those who wish to modify the software or debug their communication.
                             </p>
 
                             <p>
                                 The communication between the server and the device is done through a custom binary protocol.
-                                The protocol is half-duplex and works in a request/response scheme. It is partially inspired by the 
+                                The protocol is half-duplex and works in a request/response scheme. It draws inspiration from the
                                 <abbr title="Unified Diagnostic Service">UDS</abbr> protocol used in the automotive industry defined by ISO-14229.
                             </p>
 
                             <p>
-                                All fields are encoded in big-endian format and have a fixed size, except the addresses that depends on the device architecture.
+                                All fields are encoded in big-endian format and have a fixed size, with the exception of addresses, which depends on the device architecture.
                                 A <a class="scrollTo" href="#article-proto-CommControl-GetParams" onclick="$('#proto-CommControl-GetParams').collapse('show')">CommControl-GetParams</a> 
                                 request is required to know the address size, but also the protocol version used and the rx/tx buffer sizes.
-                                A timeout on the reception of data resets the internal state machine to wait for a new command ID. 
+                                If a timeout occurs during data reception, the internal state machine resets and waits for a new command ID. 
                                 Requests that have an invalid CRC32 are silently ignored.
                             </p>
 
                             <p>
-                                Before sending a request to a device, the server needs to establish a session with it with a "Connect" request. When no connection 
-                                is established, the device will only answer to these 2 request <a class="scrollTo" href="#article-proto-CommControl-Discover" onclick="$('#proto-CommControl-Discover').collapse('show')">CommControl-Discover</a> 
-                                and to <a class="scrollTo" href="#article-proto-CommControl-Connect" onclick="$('#proto-CommControl-Connect').collapse('show')">CommControl-Connect</a>. All other requests will be silently ignored.
+                                Before a server can send a request to a device, it must first establish a session with the device using a "Connect" request. 
+                                If no connection is established, the device will only answer to these 2 requests <a class="scrollTo" href="#article-proto-CommControl-Discover" onclick="$('#proto-CommControl-Discover').collapse('show')">CommControl-Discover</a> 
+                                and to <a class="scrollTo" href="#article-proto-CommControl-Connect" onclick="$('#proto-CommControl-Connect').collapse('show')">CommControl-Connect</a>. 
+                                All other requests will be silently ignored.
                             </p>
 
                             <p>
