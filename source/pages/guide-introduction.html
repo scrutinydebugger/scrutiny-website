@@ -41,8 +41,9 @@
                             </div>
 
                             <p>
-                                Certain applications, such as a drone controller, are critical and cannot be halted or accessed via JTAG while in operation. 
-                                As the drone is in flight, the debugging process must not interfere with the application to prevent potential hardware damage. 
+                                Certain applications are critical and cannot be halted or accessed via JTAG while in operation. 
+                                A good example would be a drone controller. As the drone is in flight, the debugging process must not interfere with 
+                                the application to prevent potential hardware damage. 
                                 Obviously, connecting a wired JTAG is hardly feasible during flight.
                             </p>
                             <p>
@@ -61,24 +62,20 @@
                         <h2 class="article-title">A concrete example, please!</h2>
                         <div class="article-body"> 
                             Consider the following C++ code.
-                            <pre>
-                                <code class="language-c++">
-    // file1.cpp
-    int some_global_var = 123;
-    void some_function(void)
+                            <pre><code class="language-c++">// file1.cpp
+int some_global_var = 123;
+void some_function(void)
+{
+    // volatile prevents unused variable to be stripped by the optimizer
+    volatile static bool must_print = false;
+    volatile static int counter = 0;
+    if (must_print)
     {
-        // volatile prevents unused variable to be stripped by the optimizer
-        volatile static bool must_print = false;
-        volatile static int counter = 0;
-        if (must_print)
-        {
-            must_print = false;
-            counter++;
-            std::cout &lt;&lt; "some_global_var=" &lt;&lt; some_global_var &lt;&lt; std::endl;
-        }
+        must_print = false;
+        counter++;
+        std::cout &lt;&lt; "some_global_var=" &lt;&lt; some_global_var &lt;&lt; std::endl;
     }
-                                </code>
-                            </pre>
+}</code></pre>
                             <p>
                                 It may seem that invoking <code class="language-c++">some_function()</code> will never print anything, right? Unless, of course, the device memory is being tampered with... 
                                 That's exactly what Scrutiny will do. Here's what this will look like in the GUI 

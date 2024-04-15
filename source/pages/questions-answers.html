@@ -23,33 +23,39 @@
                                 Somewhere in between.
                             </p>    
                             <p>
-                                Most developers know what a debugger is. Breakpoints, stepping and watching variables. A calibration tool is a term far less popular
-                                than a debugger. It doesn't have the same purpose although some functionalities can overlap.
+                                Most developers are familiar with the concept of a debugger, a tool that allows for setting breakpoints, 
+                                stepping through code, and watching variable values. 
+                                A calibration tool is a term far less popular than a debugger. 
+                                It doesn't have the same purpose although some functionalities can overlap.
                             </p>
                             <p>
-                                The term calibration tool is mainly known by the aerospace and automotive/racing industry. It's a software meant to send configurations to a 
-                                device and monitor its behavior with the freshly given parameters. The most common example would be a 
-                                <a href="https://en.wikipedia.org/wiki/PID_controller">PID controller</a> tuning. The P,I and D gains are tunable values. A developer will test the system 
-                                response in a situation with some given gains, check how the variables evolve over time and then adjust these gains again. It's a high level debugging process.
+                                Calibration tools are primarily used in the aerospace and automotive industries. 
+                                These software tools are designed to send configuration parameters to a device and monitor its 
+                                behavior with the newly applied parameters. 
+                                A common example would be the tuning of a <a href="https://en.wikipedia.org/wiki/PID_controller">PID controller</a>, where the 
+                                P, I, and D gains are adjustable values. 
+                                Developers test the system response under certain gain values, observe how the variables change over time, 
+                                and then adjust the gains accordingly. This can be seen as a high-level debugging process.
                             </p>
                             <p>
-                                These tunable parameters are often identified by a unique ID that the calibration tool knows about. Writing and reading will be done through a 
-                                communication channel (serial port, CAN bus, socket) by sending a read or write command for the given parameter ID. It's pretty much 
-                                what Scrutiny does with its RPVs (Runtime Published Values).
+                                These adjustable parameters are often identified by unique IDs known to the calibration tool. 
+                                Reading and writing operations are performed through a communication channel (such as a serial port, CAN bus, or socket) 
+                                by sending read or write commands for the given parameter ID. 
+                                This is similar to how Scrutiny handles its Runtime Published Values (RPVs).
                             </p>
                             <p>
-                                What if the tunable parameters are ALL the variables? Instead of exposing them explicitly in the embedded firmware by assigning IDs, 
-                                they can be automatically discovered using the debug symbols of a binary. 
+                                But what if all variables could be tunable parameters? Instead of explicitly exposing them in the embedded firmware by assigning IDs, 
+                                they could be automatically discovered using the debug symbols of a binary.
                                 <br />
-                                That's what the aerospace and automotive industry have aimed for using protocols such 
-                                as <a href="https://en.wikipedia.org/wiki/XCP_(protocol)">XCP</a> and the <a href="https://www.asam.net/standards/detail/mcd-2-mc/">A2L</a> 
-                                file format. Such tool can be very handy to monitor the execution of a program and find defects; we're approaching a debugger.
+                                This is the approach taken by the aerospace and automotive industries using protocols such as 
+                                <a href="https://en.wikipedia.org/wiki/XCP_(protocol)">XCP</a> and the <a href="https://www.asam.net/standards/detail/mcd-2-mc/">A2L</a> file format. 
+                                Such a tool can be invaluable for monitoring program execution and identifying defects, bringing it closer to a debugger.
                             </p>
 
                             <p>
                                 Scrutiny is doing the same, using the debugging symbols to become a calibration tool on steroids. 
-                                Although it cannot be used to step or watch locals variables, these limitations can be easily worked around
-                                using embedded graphs and making variables temporarily static during the debug phase. 
+                                While it cannot be used to step through code or watch local variables, these limitations can be 
+                                circumvented by using embedded graphs and temporarily making variables static during the debugging phase.
                             </p>
                         </div>
                     </article>
@@ -60,7 +66,7 @@
                         </h3>
                         <div id="qa-local-var" class="article-body collapse qa-answer">
                             <p>
-                                Local variables on the stack cannot be read by Scrutiny. Make them static volatile temporarily, but avoid reentrance.
+                                Local variables on the stack are not accessible to Scrutiny. Make them static volatile, but avoid reentrance.
                             </p>
 
                             <p>
@@ -69,9 +75,9 @@
                             </p>
 
                             <p>
-                                In order to see your locals with Scrutiny, you can temporarily make them static and volatile. Making them static
-                                will put the variable outside of the stack, attributing them a fixed memory location that Scrutiny can inspect.
-                                Making the variable volatile makes sure that the compiler does not optimize the variable out.  
+                                To view your local variables with Scrutiny, you can temporarily make them static and volatile. 
+                                Making them static moves the variable outside of the stack, assigning them a fixed memory location that Scrutiny can inspect. 
+                                Declaring the variable as volatile ensures that the compiler does not optimize the variable out. 
                             </p>
 
                             <p>
@@ -105,21 +111,22 @@ int my_func(int x) {
     return my_var;
 }</code></pre>
                         <p>
-                            As you can see, we now have a hook that let us know if <code class="language-c++">my_var</code> 
+                            As you can see, we now have a hook that allows us to determine if  <code class="language-c++">my_var</code> 
                             was 0 or 1 before calling <code class="language-c++">do_something()</code>. 
-                            We can look at <code class="language-c++">my_var</code> with Scrutiny to get the output of <code class="language-c++">do_something()</code>, 
+                            We can inspect <code class="language-c++">my_var</code> with Scrutiny to get the output of <code class="language-c++">do_something()</code>, 
                             and <code class="language-c++">debug_var</code> to get the value of <code class="language-c++">my_var</code> after the condition. 
                         </p>
                         <p>
-                            Another consideration is that the rate and the order at which these 2 variables are read is not guaranteed.
-                            It strongly depends on your communication link and the number of variables that are being watched at the same time. 
-                            To get a synchronized reading of the 2 variables, use the datalogging feature and make an embedded graph of them. 
-                            Then  you will see, for each execution loop, the value of <code class="language-c++">my_var</code> and <code class="language-c++">debug_var</code>.
+                            Another consideration is that the rate and order at which these two variables are read is not guaranteed. 
+                            It largely depends on your communication link and the number of variables being watched simultaneously. 
+                            To achieve a synchronized reading of the two variables, utilize the datalogging feature and create an embedded graph of them. 
+                            This will allow you to see, for each execution loop, the values of <code class="language-c++">my_var</code> 
+                            and <code class="language-c++">debug_var</code>.
                         </p>
                         <p>
-                            One last thing. When making your variables static, be careful to avoid reentrant function; static variables
-                            will change their behavior since each call will share the variable with the caller function. This is rarely
-                            an issue, unless you have task that can interrupt another one and both of them are using the same piece of code.
+                            Lastly, when making your variables static, be cautious to avoid reentrant functions; static variables will alter their 
+                            behavior since each call will share the variable with the calling function. 
+                            This is rarely an issue, unless you have a task that can interrupt another one and both are using the same piece of code. 
                         </p>
                         <div>
                     </article>
@@ -130,32 +137,32 @@ int my_func(int x) {
                         </h3>
                         <div id="qa-debug" class="article-body collapse qa-answer">
                             <p>
-                                Most features are handled by the Python server and the server can be launched using the 
-                                Scrutiny <abbr title="Command Line Interface">CLI</abbr>. The CLI accepts a parameter 
-                                <code class="language-bash">--loglevel</code> that can make it much more verbose.
+                                Most features are managed by the Python server which can be launched using the 
+                                Scrutiny <abbr title="Command Line Interface">CLI</abbr>. The CLI accepts a  
+                                <code class="language-bash">--loglevel</code> parameter that can make it much more verbose.
                             </p>
                             <p>
-                                The following line will launch a server with debug logging. <br />
+                                To launch a server with debug logging, use the following command: <br />
                                 <code class="language-bash">scrutiny launch-server --config my_config.json --loglevel debug --logfile scrutiny.log</code>
                             </p>
                             <p>
-                                Note that the <code class="language-bash">--loglevel</code> option works for every commands, 
-                                including running the unit tests. Running a failing unittest with debug logging is a very effective way
-                                to find a defect.
+                                Note that the <code class="language-bash">--loglevel</code> option is applicable to all commands, including those used to run unit tests. 
+                                Executing a failing unit test with debug logging is an effective method for identifying defects.
                             </p>
 
                             <p>
-                                When running unit tests, error messages are hidden by default to avoid causing confusion while 
-                                running tests that are expected to return an error. The following line will run a specific test with 
-                                debug logging
+                                By default, error messages are suppressed during unit test execution to prevent 
+                                confusion when running tests that are expected to return an error. 
+                                To run a specific test with debug logging, use the following command:
                                 <br /> 
                                 <code class="language-bash">python -m scrutiny runtest --module test.server.foo.bar.baz --loglevel debug</code>
                             </p>
 
                             <p>
                                 Notice how we did not use the <code class="language-bash">scrutiny</code> command to run the tests, but
-                                <code class="language-bash">python -m scrutiny</code>.  That's because when you install scrutiny,
-                                the unit tests are not installed with the release package. Unit tests are available only in a development environment
+                                <code class="language-bash">python -m scrutiny</code>.  This is because unit tests are not included in the 
+                                release package when you install Scrutiny. 
+                                Unit tests are only available in a development environment.
                             </p>
                         </div>
                     </article>
@@ -170,21 +177,21 @@ int my_func(int x) {
                             </p>
 
                             <p>
-                                Supporting an already existing protocol would only be useful to make a device, previously compatible with a paid tool like Vector Canape, 
-                                compatible with the Scrutiny UI. 
-                                When Scrutiny has been developed, the goal was to bring the CalTool/ instrumentation debugging 
-                                in the sector where it was not common to do so. Industry that requires protocol compatibility are already deeply involved with 
-                                paid tools, they can keep them. Newcomers can decide to go 100% Scrutiny or not.
+                                Supporting an existing protocol would primarily serve to make a device, 
+                                previously compatible with a paid tool such as Vector Canape, compatible with the Scrutiny UI.
+                                When Scrutiny was developed, the goal was to introduce calibration tool/instrumentation debugging to 
+                                sectors where it was not commonly used. Industries that require protocol compatibility are typically already 
+                                deeply invested in paid tools, and they can continue to use these. Newcomers have the option to fully adopt Scrutiny or not.
                             </p>
 
                             <p>
-                                Also, supporting compatibility with a standard is time consuming and development time is not the main resource
-                                in a voluntary project. It would simply be an effort put at the wrong place.
+                                Moreover, supporting compatibility with a standard is a time-consuming process, and development time is a scarce resource in a voluntary project.
+                                It would simply be an effort put at the wrong place.
                             </p>
 
                             <p>
-                                Finally, having tailored protocol, embedded and web API, is very nice for development as all the commands are meaningful and perfectly
-                                adapted to its task. Once the protocol is understood, development is much easier, faster and cleaner.
+                                Finally, having a tailored protocol, embedded and web API, is highly beneficial for development. All the commands are meaningful and perfectly suited to their tasks. 
+                                Once the protocol is understood, development becomes much easier, faster, and cleaner. 
                             </p>
                         </div>
                     </article>
@@ -209,19 +216,20 @@ if (save_eeprom){
                             </p>
 
                             <p>
-                                In the example above, the configuration code will never be executed in normal conditions. The <code class="language-c++">eeprom_input</code>
-                                and <code class="language-c++">save_eeprom</code> are now accessible by the client. They can both be written manually or through the SDK. 
-                                
+                                In the given example, the configuration code will not be executed under normal circumstances. 
+                                But, The clients now has access to both <code class="language-c++">eeprom_input</code> and <code class="language-c++">save_eeprom</code>.
+                                These can be manually written or modified through the SDK.
                             </p>
 
                             <p>
-                                For convenience, it is even possible to add an alias to abstract this variable so that these items appears at a friendly location, 
-                                for instance /EEPROM/Save &amp; /EEPROM/Content. This feature can be particularly handy if the person doing the configuration is not the same
-                                as the one writing the software (engineering vs production team). It also guarantees that the EEPROM hooks always show at the same location in the 
-                                variable tree, regardless of the software version, avoiding backward compatibility issues in the configuration scripts.
+                                To enhance usability, it's possible to create an alias to abstract this variable. This allows these items to appear at a user-friendly location, 
+                                such as /EEPROM/Save &amp; /EEPROM/Content. This feature is especially useful when the individual configuring the system is different from the 
+                                one developing the software (for instance, the engineering team versus the production team). 
+                                It also ensures that the EEPROM hooks consistently appear at the same location in the variable tree, irrespective of the software version, 
+                                thereby preventing backward compatibility issues in the configuration scripts.
                             </p>
                             <p>
-                                Note that the SDK also has the capability of writing memory chunk directly, this can be useful for automation.
+                                Note that the SDK also has the capability of writing memory chunk directly, which can be useful for automation.
                             </p>
 
                         </div>
