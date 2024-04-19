@@ -17,8 +17,8 @@
 						<li><a class="scrollTo" href="#getting-embedded" >Getting scrutiny-embedded</a>
                             <ul>
                                 <li><a class="scrollTo" href="#intree-build" >In-tree build</a></li>
+                                <li><a class="scrollTo" href="#automating-intree-build" >Automating in-tree builds</a></li>
                                 <li><a class="scrollTo" href="#building-out-of-tree" >Building out of tree</a></li>
-                                <li><a class="scrollTo" href="#automating-out-of-tree-build" >Automating out-of-tree builds</a></li>
                             </ul>
 
                             </li>
@@ -59,6 +59,28 @@
                                 the instrumentation library is provided. As a developer, you will be required to build scrutiny-embedded yourself.
                             </p>
 
+                            <p>
+                                Scrutiny has some build options to enable/disables features.
+                                <br />
+                                The list of possible configurations are provided below
+
+                                <dl>
+                                    <dt>SCRUTINY_SUPPORT_64BITS (default 1)</dt>
+                                    <dd>
+                                        When enabled, Scrutiny will be able to handle 64 bits types as <abbr title="Runtime Published Value">RPV</abbr> and as datalogging operand.
+                                        Disabling that feature will not prevent memory inspection as they happen with raw memory dumps.
+                                        <br />
+                                        Disabling 64 bits support is mainly useful to reduce the memory footprint of the library on small microcontrollers.
+                                    </dd>
+
+                                    <dt>SCRUTINY_ENABLE_DATALOGGING (default 1)</dt>
+                                    <dd>
+                                        When enabled, embedded graphs will be possible. The datalogging feature requires a non-negligible ROM footprint which
+                                        can be an issue on code size limited devices.
+                                    </dd>
+                                </dl>
+                            </p>
+
                             <h3 id="intree-build">In-tree build</h3>
                             <p>
                                 A simple in-tree build is possible by adding the scrutiny-embedded folder to your project.
@@ -70,6 +92,38 @@ project(MyProject)
 add_subdirectory(scrutiny-embedded/lib)
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} scrutiny-embedded)
+</code></pre>
+
+                            <h3 id="automating-intree-build">Automating in-tree builds</h3>
+                            <p>
+                                It is possible to automate the process of fetching and configuring scrutiny using CMake FetchContent module. 
+                                This method is the recommended one.
+                            </p>
+
+                            <pre><code language="cmake">
+cmake_minimum_required(VERSION 3.14)
+project(CMakeDemoProject)
+
+include(FetchContent)
+
+set(SCRUTINY_ENABLE_DATALOGGING 1)
+set(SCRUTINY_SUPPORT_64BITS 0) 
+
+FetchContent_Declare(
+  scrutiny-embedded
+  GIT_REPOSITORY https://github.com/scrutinydebugger/scrutiny-embedded.git
+  GIT_TAG        v0.1
+)
+FetchContent_MakeAvailable(scrutiny-embedded)
+
+add_executable(${PROJECT_NAME} main.cpp)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+    scrutiny-embedded
+)
+
+add_compile_options( -Os -Wall  -Wextra  -Werror  -gdwarf-4)    # These options also applies to scrutiny-embedded
+
 </code></pre>
                         
                             <h3 id="building-out-of-tree">Building out of tree</h3>
@@ -96,68 +150,8 @@ target_link_libraries(${PROJECT_NAME} 3rdparty/scrutiny/scrutiny-embedded.a)
 target_include_directories(${PROJECT_NAME} PRIVATE 3rdparty/scrutiny/inc)
 </code></pre>
                             <p>
-                                It is possible to enable/disable some features when building as so <code class="language-bash">SCRUTINY_SUPPORT_64BITS=0 ./scrutiny-embedded/scripts/build.sh</code>.
-                                <br />
-                                The list of possible configurations are provided below
-
-                                <dl>
-                                    <dt>SCRUTINY_SUPPORT_64BITS (default 1)</dt>
-                                    <dd>
-                                        When enabled, Scrutiny will be able to handle 64 bits types as <abbr title="Runtime Published Value">RPV</abbr> and as datalogging operand.
-                                        Disabling that feature will not prevent memory inspection as they happen with raw memory dumps.
-                                        <br />
-                                        Disabling 64 bits support is mainly useful to reduce the memory footprint of the library on small microcontrollers.
-                                    </dd>
-
-                                    <dt>SCRUTINY_ENABLE_DATALOGGING (default 1)</dt>
-                                    <dd>
-                                        When enabled, embedded graphs will be possible. The datalogging feature requires a non-negligible ROM footprint which
-                                        can be an issue on code size limited devices.
-                                    </dd>
-                                </dl>
+                                It is possible to enable/disable features when building as so <code class="language-bash">SCRUTINY_SUPPORT_64BITS=0 ./scrutiny-embedded/scripts/build.sh</code>.
                             </p>
-                            
-                            <h3 id="automating-out-of-tree-build">Automating out-of-tree builds</h3>
-                            <p>
-                                It is possible to remove the manual steps from the out-of-tree build approach by using the versatile ExternalProject module of CMake.
-                                When using this technique, the source code of the specified version will be downloaded from Github during the configuration phase of your project .
-                            </p>
-
-                            <pre><code language="cmake">
-cmake_minimum_required(VERSION 3.14)
-project(CMakeDemoProject)
-
-include(ExternalProject)
-
-# Where the includes and static lib will be written
-set(SCRUTINY_DEST_FOLDER ${CMAKE_BINARY_DIR}/3rdparty/scrutiny)
-
-# Fetch and build scrutiny
-set(SCRUTINY_PREFIX ${CMAKE_BINARY_DIR}/scrutiny)
-ExternalProject_Add(scrutiny-embedded
-    GIT_REPOSITORY https://github.com/scrutinydebugger/scrutiny-embedded
-    GIT_TAG v1.0     # Git Tag, branch or commit hash
-    PREFIX ${SCRUTINY_PREFIX}
-    BINARY_DIR ${SCRUTINY_PREFIX}/build
-    CMAKE_ARGS
-        -DSCRUTINY_ENABLE_DATALOGGING=1
-        -DSCRUTINY_SUPPORT_64BITS=1
-    INSTALL_COMMAND 
-        COMMAND ${CMAKE_COMMAND} --install ${SCRUTINY_PREFIX}/build
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${SCRUTINY_PREFIX}/build/install/ ${SCRUTINY_DEST_FOLDER}
-    BUILD_BYPRODUCTS
-        ${SCRUTINY_DEST_FOLDER}/libscrutiny-embedded.a
-)
-
-add_executable(${PROJECT_NAME} main.cpp)
-
-# Make scrutiny a dependency to guarantee the build order.
-add_dependencies(${PROJECT_NAME} scrutiny-embedded)
-
-# Makes scrutiny available to the compiler (headers and static lib)
-target_link_libraries(${PROJECT_NAME} ${SCRUTINY_DEST_FOLDER}/libscrutiny-embedded.a)
-target_include_directories(${PROJECT_NAME} PRIVATE ${SCRUTINY_DEST_FOLDER}/inc)
-</code></pre>
                         </div>
                     </article>
 
