@@ -78,6 +78,39 @@
                                         When enabled, embedded graphs will be possible. The datalogging feature requires a non-negligible ROM footprint which
                                         can be an issue on code size limited devices.
                                     </dd>
+
+                                    <dt>SCRUTINY_DATALOGGING_MAX_SIGNAL (default 32)</dt>
+                                    <dd>
+                                        Maximum number of signal that can be simultaneously logged by the embedded datalogger.
+                                    </dd>
+
+                                    <dt>SCRUTINY_DATALOGGING_BUFFER_32BITS (default 0)</dt>
+                                    <dd>
+                                        Allow a datalogging buffer bigger than 65536 bytes.
+                                    </dd>
+
+                                    <dt>SCRUTINY_REQUEST_MAX_PROCESS_TIME_US (default 100000)</dt>
+                                    <dd>
+                                        Maximum time allowed to internally process a request (us). This value has an effect on 
+                                        messages that needs to wait for a response from a LoopHandler (in a different thread). 
+
+                                        This delay may need to be extended if datalogging is enabled in a very slow thread/task.
+                                    </dd>
+
+                                    <dt>SCRUTINY_COMM_RX_TIMEOUT_US (default 50000)</dt>
+                                    <dd>
+                                        Maximum time between the reception of 2 consecutive bytes (us). This represent the minimum wait time 
+                                        to send a new request to the device if the previous request was incomplete. After that delay, the communication
+                                        state machine goes back to IDLE and a new command is awaited.
+                                    </dd>
+
+                                    <dt>SCRUTINY_COMM_HEARTBEAT_TIMEOUT_US (default 5000000)</dt>
+                                    <dd>
+                                        Maximum amount of time between the reception of 2 heartbeat messages. If this delay is exceeded,
+                                        the device will close the session with the server and will stop all communication. A new CONNECT message will
+                                        be required to reenable the communication.
+                                    </dd>                                  
+                                   
                                 </dl>
                             </p>
 
@@ -108,6 +141,7 @@ include(FetchContent)
 
 set(SCRUTINY_ENABLE_DATALOGGING 1)
 set(SCRUTINY_SUPPORT_64BITS 0) 
+# More options possible
 
 FetchContent_Declare(
   scrutiny-embedded
