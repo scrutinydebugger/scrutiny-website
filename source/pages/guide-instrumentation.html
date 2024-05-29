@@ -378,21 +378,23 @@ config.set_published_values(rpvs, sizeof(rpvs) / sizeof(rpvs[0]), rpv_read_callb
                             </p>
 
                             <p>
-                                Accessing <code class="language-c++">scrutiny::MainHandler::comm()</code> will return a pointer to a <code class="language-c++">CommHandler</code>.
-                                This object is responsible to manage the communication with the server. All of its functions are accessible to the user, but not all of them 
-                                are necessary.
-                                <br /> 
-                                The necessary functions are:
+                                Three methods are necessary to do the stream integration, see below. 
                             </p>
 
                             <dl>
-                                <dt><code class="language-c++">void CommHandler::receive_data(uint8_t *data, uint16_t len)</code></dt>
+                                <dt><code class="language-c++">void MainHandler::receive_data(uint8_t *data, uint16_t len)</code></dt>
                                 <dd>Give data coming from the server to the Scrutiny embedded library</dd>
-                                <dt><code class="language-c++">uint16_t CommHandler::pop_data(uint8_t *buffer, uint16_t len)</code></dt>
+                                <dt><code class="language-c++">uint16_t MainHandler::pop_data(uint8_t *buffer, uint16_t len)</code></dt>
                                 <dd>Reads data from the Scrutiny embedded library that must be sent to the server</dd>
-                                <dt><code class="language-c++">uint16_t CommHandler::data_to_send(void) const</code></dt>
+                                <dt><code class="language-c++">uint16_t MainHandler::data_to_send(void) const</code></dt>
                                 <dd>Tells how much bytes are awaiting to be sent to the server</dd>
                             </dl>
+
+                            <p>
+                                Additionall, accessing <code class="language-c++">scrutiny::MainHandler::comm()</code> will return a pointer to a <code class="language-c++">CommHandler</code>.
+                                This object is responsible to manage the communication with the server. All of its functions are accessible to the user to ease the debugging 
+                                process of an integration issue, but they should not be used in normal operation.
+                            </p>
                             
                             <pre><code class="language-c++">// Arduino example
 void process_scrutiny_loop(){
@@ -406,17 +408,18 @@ void process_scrutiny_loop(){
     int16_t c = Serial.read();  // Arduino returns -1 when no data is available
     if (c != -1){
         uint8_t uc = static_cast&lt;uint8_t&gt;(c);
-        main_handler.comm()->receive_data(&uc, 1);  
+        main_handler.receive_data(&uc, 1);  
     }
+    
+    main_handler.process(timestep_us * 10); // Timesteps are counted in multiple of 100ns
     
     // Sends data
     uint8_t buffer[16];
-    uint16_t nread = main_handler.comm()->pop_data(buffer, sizeof(buffer));  // Reads data from scrutiny lib
+    uint16_t nread = main_handler.pop_data(buffer, sizeof(buffer));  // Reads data from scrutiny lib
     if (nread &gt; 0){
         Serial.write(buffer, nread);    // Sends data to the serial port
     }
 
-    main_handler.process(timestep_us * 10); // Timesteps are counted in multiple of 100ns
     last_call_us = current_us;  
 }</code></pre>
                             <p>
