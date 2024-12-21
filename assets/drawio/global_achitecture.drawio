@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e" scale="2" border="0">
     <diagram id="TkqTKa8OCuHq-zXPvSPR" name="Page-1">
-        <mxGraphModel dx="906" dy="397" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
+        <mxGraphModel dx="1105" dy="390" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -13,7 +13,7 @@
                 <mxCell id="mlyRW9mOE5CwS9S9jdWl-3" value="&lt;div&gt;Scrutiny lib (C++11)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="709" y="150" width="70" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="mlyRW9mOE5CwS9S9jdWl-6" value="&lt;div&gt;GUI Client&lt;br&gt;(Electron / React)&lt;br&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="mlyRW9mOE5CwS9S9jdWl-6" value="&lt;div&gt;GUI Client&lt;br&gt;(QT / PySide6)&lt;br&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="30" y="60" width="120" height="70" as="geometry"/>
                 </mxCell>
                 <mxCell id="mlyRW9mOE5CwS9S9jdWl-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;startArrow=classic;startFill=1;" parent="1" source="mlyRW9mOE5CwS9S9jdWl-7" target="mlyRW9mOE5CwS9S9jdWl-14" edge="1">
@@ -46,8 +46,8 @@
                 <mxCell id="mlyRW9mOE5CwS9S9jdWl-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;" parent="1" source="mlyRW9mOE5CwS9S9jdWl-1" target="mlyRW9mOE5CwS9S9jdWl-3" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="mlyRW9mOE5CwS9S9jdWl-25" value="Websocket" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="200" y="150" width="80" height="30" as="geometry"/>
+                <mxCell id="mlyRW9mOE5CwS9S9jdWl-25" value="TCP socket" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="195" y="150" width="90" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="mlyRW9mOE5CwS9S9jdWl-26" value="Full duplex event based communication" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;verticalAlign=middle;fontStyle=2;spacingTop=5;spacingLeft=5;spacingBottom=5;spacingRight=5;" parent="1" vertex="1">
                     <mxGeometry x="200" y="30" width="140" height="40" as="geometry"/>
